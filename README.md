@@ -48,3 +48,14 @@ Placement:
 Notes:
 - This scaffold assumes `pi` is installed on your machine.
 - I did not run the extension inside `pi` here, because `pi` is not installed in this workspace.
+
+## Cast
+
+- **Seshat the Ghola** (`AGENTS.md`) — the memory-bearing orchestrator. Coordinates the full spec-first loop, delegates to Gholas, and reads from Honcho but does not write durable conclusions.
+- **spec-writer** (`.pi/agents/spec-writer.md`) — produces a concrete, testable implementation spec from the delegated request.
+- **test-writer** (`.pi/agents/test-writer.md`) — derives or updates tests from the spec before implementation begins.
+- **implementer** (`.pi/agents/implementer.md`) — makes the smallest coherent production changes that satisfy the spec and tests.
+- **validator** (`.pi/agents/validator.md`) — runs verification, reports pass/fail, and writes durable engineering lessons on PASS via `honcho_conclude`.
+- **reviewer** (`.pi/agents/reviewer.md`) — performs a final engineering review and writes post-merge retrospective lessons via `honcho_conclude`.
+- **Steward** — TBD slice 4 (product-owner persona; will own roadmap and arbitrate scope).
+- **doc-scout** — TBD slice 6 (latest-docs fetcher; retrieves current official documentation before implementation).
