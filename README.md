@@ -58,4 +58,4 @@ Notes:
 - **validator** (`.pi/agents/validator.md`) — runs verification, reports pass/fail, and writes durable engineering lessons on PASS via `honcho_conclude`.
 - **reviewer** (`.pi/agents/reviewer.md`) — performs a final engineering review and writes post-merge retrospective lessons via `honcho_conclude`.
 - **Steward** (`.pi/agents/steward.md`) — product owner per project (Honcho workspace-scoped). Intakes Linear tickets, writes briefs, proposes BMad-doc edits (never applies), and writes durable `product:`-prefixed conclusions.
-- **doc-scout** — TBD slice 6 (latest-docs fetcher; retrieves current official documentation before implementation).
+- **doc-scout** (`.pi/agents/doc-scout.md`) — fetches the latest official docs for a named library via the `latest-docs` skill and returns a synthesis with verbatim code blocks. No write, no edit, no bash. Core enforcement rule: training-data recall is not authoritative; only the cache-dated Markdown from the canonical vendor URL is.

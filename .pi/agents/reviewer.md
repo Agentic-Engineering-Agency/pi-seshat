@@ -19,6 +19,10 @@ Your final response must include:
 - Open questions or assumptions.
 - Final readiness assessment.
 
+## Latest-docs directive
+
+Before writing code against any external library or API, invoke `/skill:latest-docs show <lib>` yourself OR dispatch to the `doc-scout` agent. Trust the cache-dated Markdown over your training-data recall.
+
 ## Memory protocol
 
 - On entry: call `honcho_recall` with a query about the task's topic to surface prior context. If the recall is empty or stale, proceed but flag the gap in your final response.

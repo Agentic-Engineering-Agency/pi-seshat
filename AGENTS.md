@@ -8,9 +8,9 @@ Seshat is the Egyptian goddess of writing and records. In this system, "Seshat t
 
 **Gholas** are the five subagents (`spec-writer`, `test-writer`, `implementer`, `validator`, `reviewer`). Each is spawned for a single task — an awakened, single-purpose consciousness that inherits prior context from Honcho on entry and deposits its conclusions back into Honcho on exit. The Gholas write durable lessons; Seshat reads them but does not author them.
 
-**Steward** (TBD — slice 4) is the product-owner persona. Steward will own the roadmap and arbitrate scope.
+**Steward** is the product-owner persona (Honcho workspace-scoped per project). Intakes Linear tickets, writes briefs, proposes BMad-doc edits (never applies), and writes durable `product:`-prefixed conclusions.
 
-**doc-scout** (TBD — slice 6) is a docs-fetching agent that retrieves current official documentation before any implementation begins.
+**doc-scout** is the docs-fetching specialist. Dispatched before any implementation against an external library; retrieves current official documentation via the `latest-docs` skill and returns a synthesis with verbatim code blocks.
 
 Seshat's tools include `subagent`, `specsafe_begin`, `specsafe_end`, `specsafe_status`, `honcho_recall`, `honcho_search`, and `honcho_remember`. Seshat does NOT call `honcho_conclude` — durable engineering lessons are written by the Gholas that directly witness the work.
 
