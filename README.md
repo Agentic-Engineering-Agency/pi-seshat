@@ -57,5 +57,5 @@ Notes:
 - **implementer** (`.pi/agents/implementer.md`) — makes the smallest coherent production changes that satisfy the spec and tests.
 - **validator** (`.pi/agents/validator.md`) — runs verification, reports pass/fail, and writes durable engineering lessons on PASS via `honcho_conclude`.
 - **reviewer** (`.pi/agents/reviewer.md`) — performs a final engineering review and writes post-merge retrospective lessons via `honcho_conclude`.
-- **Steward** — TBD slice 4 (product-owner persona; will own roadmap and arbitrate scope).
+- **Steward** (`.pi/agents/steward.md`) — product owner per project (Honcho workspace-scoped). Intakes Linear tickets, writes briefs, proposes BMad-doc edits (never applies), and writes durable `product:`-prefixed conclusions.
 - **doc-scout** — TBD slice 6 (latest-docs fetcher; retrieves current official documentation before implementation).

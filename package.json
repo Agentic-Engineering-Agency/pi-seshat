@@ -11,7 +11,8 @@
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
-    "@honcho-ai/sdk": "latest"
+    "@honcho-ai/sdk": "latest",
+    "@linear/sdk": "^82.1.0"
   },
   "devDependencies": {
     "@mariozechner/pi-coding-agent": "^0.70.2",
