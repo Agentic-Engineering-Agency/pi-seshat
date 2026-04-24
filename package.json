@@ -5,9 +5,9 @@
   "description": "Custom pi setup: Seshat the Ghola orchestrator + Honcho memory bridge + SpecSafe lifecycle",
   "type": "module",
   "scripts": {
-    "test": "bun test ./.pi/extensions/**/test/*.test.ts",
-    "test:unit": "bun test --test-name-pattern='\\[unit\\]' ./.pi/extensions/**/test/*.test.ts",
-    "test:live": "HONCHO_TESTS_LIVE=1 bun test ./.pi/extensions/**/test/*.test.ts",
+    "test": "bun test ./.pi/extensions/**/test/*.test.ts ./.pi/skills/**/test/*.test.ts",
+    "test:unit": "bun test --test-name-pattern='\\[unit\\]' ./.pi/extensions/**/test/*.test.ts ./.pi/skills/**/test/*.test.ts",
+    "test:live": "HONCHO_TESTS_LIVE=1 bun test ./.pi/extensions/**/test/*.test.ts ./.pi/skills/**/test/*.test.ts",
     "typecheck": "tsc --noEmit"
   },
   "dependencies": {
