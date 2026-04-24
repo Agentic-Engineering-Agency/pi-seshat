@@ -341,7 +341,7 @@ describe("pr create + Linear invariant", () => {
 		const logPath = path.join(env.repo, ".pi", ".github-log.jsonl");
 		expect(fs.existsSync(logPath)).toBe(true);
 		const entry = JSON.parse(fs.readFileSync(logPath, "utf8").trim());
-		expect(entry.cmd).toBe("pr create");
+		expect(entry.action).toBe("pr create");
 		expect(entry.exit).toBe(0);
 		expect(entry.result_url).toBe("https://github.com/org/repo/pull/42");
 		expect(entry.approver).toBe("luci");
@@ -438,7 +438,7 @@ describe("other mutations", () => {
 		expect(result.exitCode).toBe(0);
 		const logPath = path.join(env.repo, ".pi", ".github-log.jsonl");
 		const entry = JSON.parse(fs.readFileSync(logPath, "utf8").trim());
-		expect(entry.cmd).toBe("pr comment");
+		expect(entry.action).toBe("pr comment");
 		expect(entry.result_url).toContain("issuecomment");
 	});
 
@@ -453,7 +453,7 @@ describe("other mutations", () => {
 		expect(result.exitCode).toBe(0);
 		const logPath = path.join(env.repo, ".pi", ".github-log.jsonl");
 		const entry = JSON.parse(fs.readFileSync(logPath, "utf8").trim());
-		expect(entry.cmd).toBe("pr merge");
+		expect(entry.action).toBe("pr merge");
 		expect(entry.result_url).toBe("abc123merge");
 	});
 

@@ -20,6 +20,7 @@ import {
 	extractSection,
 	loadRegistry,
 	parseFrontmatter,
+	sanitizeLib,
 	scopeHtml,
 	type FetchFn,
 	type FetchResponse,
@@ -548,5 +549,27 @@ describe("project registry + gitignore", () => {
 		const gi = fs.readFileSync(path.join(repoRoot, ".gitignore"), "utf8");
 		expect(gi).toMatch(/\.pi\/\.docs-cache\//);
 		expect(gi).toMatch(/\.pi\/\.docs-registry-log\.jsonl/);
+	});
+});
+
+// ---------------------------------------------------------------------------
+// sanitizeLib — path-traversal rejection + regression
+// ---------------------------------------------------------------------------
+
+describe("sanitizeLib", () => {
+	test("throws on '..'", () => {
+		expect(() => sanitizeLib("..")).toThrow("path-traversal rejected");
+	});
+
+	test("throws on '../evil'", () => {
+		expect(() => sanitizeLib("../evil")).toThrow("path-traversal rejected");
+	});
+
+	test("throws on embedded null byte", () => {
+		expect(() => sanitizeLib("a\0b")).toThrow("path-traversal rejected");
+	});
+
+	test("regression: @honcho-ai/sdk → @honcho-ai-sdk", () => {
+		expect(sanitizeLib("@honcho-ai/sdk")).toBe("@honcho-ai-sdk");
 	});
 });

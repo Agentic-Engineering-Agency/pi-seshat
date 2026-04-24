@@ -93,7 +93,8 @@ export function loadRegistry(cwd: string): Registry {
 
 function saveRegistry(cwd: string, registry: Registry): void {
 	const p = registryPath(cwd);
-	fs.writeFileSync(p, JSON.stringify(registry, null, 2) + "\n");
+	fs.writeFileSync(p, JSON.stringify(registry, null, 2) + "\n", { mode: 0o600 });
+	fs.chmodSync(p, 0o600);  // belt-and-braces when file pre-existed
 }
 
 function isEntry(v: unknown): v is RegistryEntry {
@@ -113,8 +114,13 @@ function entriesOf(registry: Registry): Array<[string, RegistryEntry]> {
 // Cache path helpers
 // ---------------------------------------------------------------------------
 
-function sanitizeLib(lib: string): string {
-	// @honcho-ai/sdk → @honcho-ai-sdk  (keep @, replace slashes)
+export function sanitizeLib(lib: string): string {
+	// Reject path-traversal tokens and control characters. Only --i-approve'd
+	// register calls can add new lib names, but defense-in-depth is cheap.
+	if (/^\.+$/.test(lib) || lib.includes("..") || /[\\\0]/.test(lib)) {
+		throw new Error(`invalid lib name (path-traversal rejected): ${lib}`);
+	}
+	// @honcho-ai/sdk → @honcho-ai-sdk (keep @, replace slashes).
 	return lib.replace(/\//g, "-");
 }
 

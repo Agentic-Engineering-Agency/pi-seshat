@@ -116,12 +116,8 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 	});
 
 	test("returns isError for a non-writer peer without calling Honcho", async () => {
-		let networkCalled = false;
 		const tools = buildHonchoTools({
 			getEnv: () => envFor("implementer"),
-			__networkProbe: () => {
-				networkCalled = true;
-			},
 		});
 		const result = await tools.honcho_conclude.execute(
 			"call-3",
@@ -134,7 +130,6 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 		const text = result.content.map((c: any) => c.text).join("\n");
 		expect(text).toContain("implementer");
 		expect(text.toLowerCase()).toContain("not permitted");
-		expect(networkCalled).toBe(false);
 	});
 
 	test("does NOT return isError for validator (pre-network gate passes)", async () => {
@@ -147,6 +142,70 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 		const result = await tools.honcho_conclude.execute(
 			"call-4",
 			{ content: "fixture" },
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBeFalsy();
+	});
+});
+
+describe("[unit] honcho_search workspace scope rejection", () => {
+	const envFull: HonchoToolRuntimeEnv = {
+		HONCHO_API_KEY: "dummy",
+		HONCHO_WORKSPACE_ID: "w",
+		HONCHO_SESSION_ID: "s",
+		HONCHO_PEER_ID: "luci",
+	};
+
+	test("scope:'workspace' returns isError containing 'not yet wired'", async () => {
+		const tools = buildHonchoTools({ getEnv: () => envFull });
+		const result = await tools.honcho_search.execute(
+			"ws-1",
+			{ query: "anything", scope: "workspace" },
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBe(true);
+		const text = result.content.map((c: any) => c.text).join("\n");
+		expect(text).toContain("not yet wired");
+	});
+});
+
+describe("[unit] steward product: prefix gate", () => {
+	const envFor = (peer: string): HonchoToolRuntimeEnv => ({
+		HONCHO_API_KEY: "dummy",
+		HONCHO_WORKSPACE_ID: "w",
+		HONCHO_SESSION_ID: "s",
+		HONCHO_PEER_ID: peer,
+	});
+
+	test("rejects steward conclusions without 'product:' prefix", async () => {
+		const tools = buildHonchoTools({
+			getEnv: () => envFor("steward"),
+			__fakeConcludeResult: { id: "fake-id" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"gate-1",
+			{ content: "lesson learned from slice" },
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBe(true);
+		const text = result.content.map((c: any) => c.text).join("\n");
+		expect(text).toContain("product:");
+	});
+
+	test("allows steward conclusions with 'product:' prefix", async () => {
+		const tools = buildHonchoTools({
+			getEnv: () => envFor("steward"),
+			__fakeConcludeResult: { id: "fake-steward-id" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"gate-2",
+			{ content: "product: Curia requires LFPDPPP data-residency" },
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,

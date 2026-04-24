@@ -436,7 +436,7 @@ if command -v jq >/dev/null 2>&1; then
 		--argjson exit "$GH_EXIT" \
 		--arg result_url "$RESULT_URL" \
 		--arg approver "$APPROVER" \
-		'{ts:$ts, cmd:$cmd, args:$args, exit:$exit, result_url:$result_url, approver:$approver}')
+		'{ts:$ts, action:$cmd, args:$args, exit:$exit, result_url:$result_url, approver:$approver}')
 	printf '%s\n' "$ENTRY" >> "$LOG_FILE"
 else
 	# Minimal fallback: string-escape manually (best-effort).
@@ -446,7 +446,7 @@ else
 		ARGS_STR+="\"$(escape "$a")\","
 	done
 	ARGS_STR="[${ARGS_STR%,}]"
-	printf '{"ts":"%s","cmd":"%s","args":%s,"exit":%d,"result_url":"%s","approver":"%s"}\n' \
+	printf '{"ts":"%s","action":"%s","args":%s,"exit":%d,"result_url":"%s","approver":"%s"}\n' \
 		"$(escape "$TS")" "$(escape "$CMD_LABEL")" "$ARGS_STR" "$GH_EXIT" "$(escape "$RESULT_URL")" "$(escape "$APPROVER")" \
 		>> "$LOG_FILE"
 fi

@@ -14,6 +14,7 @@ import * as path from "node:path";
 import type { ExtensionAPI } from "@mariozechner/pi-coding-agent";
 import { Honcho } from "@honcho-ai/sdk";
 import { Type } from "typebox";
+import { statePathFor } from "../specsafe-session/index.ts";
 
 // ---------------------------------------------------------------------------
 // Policy surface — exported for the unit tests.
@@ -55,10 +56,6 @@ function checkRequired(env: HonchoToolRuntimeEnv): string | null {
 	return `Missing required Honcho env vars: ${missing.join(", ")}`;
 }
 
-function statePathFor(cwd: string): string {
-	return path.join(cwd, ".pi", ".honcho-state.json");
-}
-
 function bumpHonchoCallCounter(cwd: string): void {
 	const sp = statePathFor(cwd);
 	try {
@@ -82,8 +79,6 @@ type BuildOpts = {
 	getEnv: () => HonchoToolRuntimeEnv;
 	/** Test-only: resolves a stubbed conclusion id without hitting the network. */
 	__fakeConcludeResult?: { id: string };
-	/** Test-only: invoked if any network-adjacent code would run under a rejected gate. */
-	__networkProbe?: () => void;
 };
 
 type ToolResult = {
@@ -172,9 +167,13 @@ export function buildHonchoTools(opts: BuildOpts) {
 				if (scope === "session") {
 					const session = await client.session(env.HONCHO_SESSION_ID!);
 					page = await session.search(params.query);
-				} else {
+				} else if (scope === "peer") {
 					const peer = await client.peer(env.HONCHO_PEER_ID!);
 					page = await peer.search(params.query);
+				} else {
+					// workspace-scope search is a v2 enhancement gated on Honcho SDK support.
+					// Return an explicit error rather than silently falling through to peer scope.
+					return errText("workspace-scope search is not yet wired; use 'session' or 'peer'");
 				}
 				// Pi SDK returns a Page; drain it so the tool result is simple.
 				const hits: Array<Record<string, unknown>> = [];
@@ -232,6 +231,9 @@ export function buildHonchoTools(opts: BuildOpts) {
 			if (!isConclusionWriter(peerId)) {
 				return errText(`peer ${peerId || "<unset>"} is not permitted to write conclusions`);
 			}
+			if (peerId === "steward" && !params.content.startsWith("product:")) {
+				return errText("steward conclusions must be prefixed with 'product:' — this is a dialect separator; engineering conclusions do not use it");
+			}
 			const missing = checkRequired(env);
 			if (missing) return errText(missing);
 
@@ -258,12 +260,6 @@ export function buildHonchoTools(opts: BuildOpts) {
 			}
 		},
 	};
-
-	// __networkProbe is reserved for future tests where we need to assert the
-	// gate short-circuited before any network surface was reached. Currently
-	// the isConclusionWriter check precedes client construction, so the probe
-	// is unused in happy-path code but kept as an opt-in hook.
-	void opts.__networkProbe;
 
 	return { honcho_recall, honcho_search, honcho_remember, honcho_conclude };
 }

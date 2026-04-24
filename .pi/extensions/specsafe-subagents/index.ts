@@ -7,6 +7,7 @@ import { StringEnum } from "@mariozechner/pi-ai";
 import { type ExtensionAPI, withFileMutationQueue } from "@mariozechner/pi-coding-agent";
 import { Type } from "typebox";
 import { type AgentConfig, type AgentScope, discoverAgents } from "./agents.js";
+import { statePathFor } from "../specsafe-session/index.ts";
 
 // ---------------------------------------------------------------------------
 // SpecSafe integration helpers (SPEC-20260424-001).
@@ -44,7 +45,7 @@ export function buildChildEnv(
 }
 
 function readSpecsafeState(cwd: string): SpecsafeStateSnapshot {
-	const sp = path.join(cwd, ".pi", ".honcho-state.json");
+	const sp = statePathFor(cwd);
 	try {
 		if (!fs.existsSync(sp)) return null;
 		return JSON.parse(fs.readFileSync(sp, "utf-8")) as SpecsafeStateSnapshot;
@@ -371,7 +372,7 @@ async function runAgent(
 		}
 		if (tmpDir) {
 			try {
-				fs.rmdirSync(tmpDir);
+				fs.rmSync(tmpDir, { recursive: true, force: true });
 			} catch {}
 		}
 	}

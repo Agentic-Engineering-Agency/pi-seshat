@@ -68,7 +68,7 @@ github api <route> -X POST|PATCH|PUT|DELETE [...]                 [--i-approve]
 Every approved mutation appends one JSON line to `.pi/.github-log.jsonl`:
 
 ```json
-{"ts":"2026-04-24T12:00:00Z","cmd":"pr create","args":["pr","create","--title","...","--draft"],"exit":0,"result_url":"https://github.com/org/repo/pull/42","approver":"luci"}
+{"ts":"2026-04-24T12:00:00Z","action":"pr create","args":["pr","create","--title","...","--draft"],"exit":0,"result_url":"https://github.com/org/repo/pull/42","approver":"luci"}
 ```
 
 `result_url` is derived from gh's stdout for PR/comment creation, or from a follow-up `gh pr view --json mergeCommit` for merges.
