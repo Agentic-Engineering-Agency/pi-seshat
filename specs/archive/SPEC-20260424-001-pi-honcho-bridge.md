@@ -3,7 +3,7 @@ id: SPEC-20260424-001
 slug: pi-honcho-bridge-v1
 slice: 1 of 6
 title: Pi ↔ Honcho memory bridge + SpecSafe session lifecycle + subagent env/commit patch
-status: approved
+status: archived
 author: seshat (drafted by orchestrator on behalf of luci)
 created: 2026-04-24
 linear: n/a (meta-project; no Linear ticket)

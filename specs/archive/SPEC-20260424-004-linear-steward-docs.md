@@ -3,7 +3,7 @@ id: SPEC-20260424-004
 slug: linear-steward-docs
 slice: 4 of 6
 title: Linear skill + Steward agent + Docs skill (BMad-doc proposal flow)
-status: approved
+status: archived
 author: seshat (drafted on behalf of luci)
 created: 2026-04-24
 depends_on: [SPEC-20260424-001, SPEC-20260424-002, SPEC-20260424-003]

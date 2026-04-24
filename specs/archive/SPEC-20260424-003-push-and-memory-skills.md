@@ -3,7 +3,7 @@ id: SPEC-20260424-003
 slug: push-and-memory-skills
 slice: 3 of 6
 title: Local safety-wrapper skills — push (consent-gated) and memory (read-side helpers)
-status: approved
+status: archived
 author: seshat (drafted on behalf of luci)
 created: 2026-04-24
 depends_on: [SPEC-20260424-001, SPEC-20260424-002]

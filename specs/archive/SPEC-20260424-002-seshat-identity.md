@@ -3,7 +3,7 @@ id: SPEC-20260424-002
 slug: seshat-identity
 slice: 2 of 6
 title: Establish Seshat the Ghola orchestrator identity + update subagent markdowns
-status: approved
+status: archived
 author: seshat (drafted on behalf of luci)
 created: 2026-04-24
 depends_on: [SPEC-20260424-001]

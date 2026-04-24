@@ -3,7 +3,7 @@ id: SPEC-20260424-005
 slug: github-skill
 slice: 5 of 6
 title: GitHub skill — gh wrapper with draft-mode mutations and Linear-state invariant
-status: approved
+status: archived
 author: seshat (drafted on behalf of luci)
 created: 2026-04-24
 depends_on: [SPEC-20260424-001, SPEC-20260424-002, SPEC-20260424-003, SPEC-20260424-004]

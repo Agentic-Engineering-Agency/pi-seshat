@@ -3,7 +3,7 @@ id: SPEC-20260424-006
 slug: latest-docs-and-doc-scout
 slice: 6 of 6
 title: latest-docs skill + doc-scout agent — programmatic enforcement of the latest-docs rule
-status: approved
+status: archived
 author: seshat (drafted on behalf of luci)
 created: 2026-04-24
 depends_on: [SPEC-20260424-001, SPEC-20260424-002]
