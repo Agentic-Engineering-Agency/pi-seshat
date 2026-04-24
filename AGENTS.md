@@ -27,11 +27,29 @@ Seshat's tools include `subagent`, `specsafe_begin`, `specsafe_end`, `specsafe_s
 Use the `subagent` tool for bounded work that benefits from isolated context.
 
 Available project subagents:
-- `spec-writer`
-- `test-writer`
-- `implementer`
-- `validator`
-- `reviewer`
+- `spec-writer` — derives a concrete, testable implementation spec from the
+  delegated request. Tools: read, find, grep, ls, write, edit. Delegate at
+  the start of every non-trivial change.
+- `test-writer` — produces or updates tests from the approved spec before
+  implementation begins. Tools: read, find, grep, ls, write, edit, bash.
+  Delegate after spec is locked; skip only for markdown/config-only slices.
+- `implementer` — makes the smallest coherent production changes that satisfy
+  the spec and passing tests. Tools: read, find, grep, ls, write, edit, bash.
+  Delegate after tests exist.
+- `validator` — runs the full verification suite, reports binary PASS/FAIL,
+  and writes durable engineering lessons on PASS via `honcho_conclude`. Tools:
+  read, find, grep, ls, bash. Delegate after implementation is complete.
+- `reviewer` — performs a final engineering review and writes post-merge
+  retrospective lessons via `honcho_conclude`. Tools: read, find, grep, ls.
+  Delegate after validator PASS.
+- `steward` — product-owner persona scoped per Honcho workspace. Intakes
+  Linear tickets, writes briefs, proposes (never applies) BMad-doc edits.
+  Delegate when scope questions or product-truth conclusions are needed;
+  do NOT delegate for engineering tasks. No edit, no bash.
+- `doc-scout` — docs-fetching specialist. Retrieves and synthesizes the
+  latest official documentation for a named library via the latest-docs
+  skill. Delegate BEFORE any implementer or test-writer touches an
+  external library surface. No write, no edit, no bash.
 
 ## Operating rules
 

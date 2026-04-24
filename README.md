@@ -1,53 +1,80 @@
-# Pi Specsafe Setup
+# pi-seshat
 
-This directory contains a minimal project-local setup for `pi` tailored to a spec-first coding workflow.
+Custom Pi installation that layers Seshat the Ghola — a memory-bearing
+orchestrator — on top of @mariozechner/pi-coding-agent. Adds Honcho-backed
+durable memory, SpecSafe session lifecycle with per-slice cost accounting,
+agent-aware git commit trailers, and six safety-wrapped external-surface
+skills (push, memory, linear, docs, github, latest-docs) gated behind an
+--i-approve idiom.
 
-What is included:
-- `AGENTS.md`: makes the main agent act as the orchestrator.
-- `.pi/extensions/specsafe-subagents/`: registers a `subagent` tool.
-- `.pi/agents/`: defines specialized child agents as Markdown files.
+The name: Seshat is the Egyptian goddess of writing and records; a Ghola
+is a Dune-universe regrown-consciousness. The system reflects both —
+Seshat holds the long record, the Gholas are single-purpose consciousnesses
+awakened for one bounded task and dismissed on exit.
 
-How it works:
-1. The main agent reads `AGENTS.md` and behaves as the coordinator.
-2. The `subagent` extension discovers child agents from `.pi/agents`.
-3. Each child agent is a Markdown file with frontmatter:
-   - `name`
-   - `description`
-   - optional `tools`
-   - optional `model`
-4. The extension spawns fresh `pi` processes in JSON mode and appends the child agent prompt as a system prompt.
+## What's here
 
-Suggested usage in `pi`:
-- Ask the main agent to handle a task end-to-end using the specsafe loop.
-- Or ask it explicitly to run a chain such as:
+Three tiers of Pi extension:
 
-```text
-Use the specsafe workflow for this task:
-- write/update the spec
-- write/update the tests
-- implement the code
-- validate the result
+- **Agents** (`.pi/agents/*.md`) — seven declarative personas: five
+  engineering Gholas (spec-writer, test-writer, implementer, validator,
+  reviewer), plus the Steward (product-owner per project) and doc-scout
+  (fetches latest official docs before code).
+- **Extensions** (`.pi/extensions/*/index.ts`) — three imperative
+  TypeScript modules: `honcho` (memory bridge with conclusion-writer
+  allowlist), `specsafe-session` (slice lifecycle + cost counters),
+  `specsafe-subagents` (the subagent dispatcher, patched to inject
+  Honcho identity into spawned children and auto-commit on exit).
+- **Skills** (`.pi/skills/<name>/{bin/,SKILL.md,README.md}`) — six
+  CLI-wrapped capabilities. Every external mutation is `--i-approve`-
+  gated and writes a forensic JSONL audit log (mode 0600, gitignored).
+
+## SpecSafe workflow
+
+Every non-trivial change follows a five-step loop: spec → tests →
+implement → verify/QA → complete + archive. Specs live in `specs/`
+until committed; archived specs move to `specs/archive/`. Tests are
+written before implementation. The verify step is binary PASS/FAIL;
+FAIL loops back, PASS advances.
+
+Markdown/config-only slices skip the test-writer step and use the
+spec's §5 acceptance criteria as the verification contract. This is
+a documented deviation from canonical SpecSafe's "no stage skipping"
+invariant.
+
+## Honcho identity model
+
+- **Workspace** = one per project (curia, matro, agentic-pm-kit,
+  billy, heineken, plus pi-dev-sandbox for tests).
+- **Session** = one SpecSafe slice. Naming: `<LINEAR-KEY>__<slug>`
+  when tied to a Linear ticket (e.g. `CUR-92__login-fix`),
+  `SPEC-<YYYYMMDD>-NNN` for meta work.
+- **Peers** = flat, workspace-scoped: `luci` (human), `seshat`
+  (orchestrator), and one peer per Ghola (spec-writer,
+  test-writer, implementer, validator, reviewer, steward,
+  doc-scout).
+
+Parent Pi opens a session via `specsafe_begin(sliceId, workspaceId)`.
+State persists at `.pi/.honcho-state.json` (mode 0600). When Seshat
+dispatches via `subagent(...)`, the child inherits `HONCHO_WORKSPACE_ID`,
+`HONCHO_SESSION_ID`, `HONCHO_PEER_ID=<agent.name>`, and
+`SPECSAFE_SLICE_ID` through env injection. On successful exit with
+a slice open, the orchestration layer auto-commits with trailers:
+`Co-Authored-By`, `Spec-Slice`, `Peer`, `Session`. Never auto-pushes.
+
+## Getting started
+
+Required environment:
+
+```bash
+export HONCHO_API_KEY="hnc_..."
+export HONCHO_PEER_NAME="Luci"
+export LINEAR_API_KEY="lin_api_..."
+gh auth login --scopes repo,workflow
 ```
 
-Agent file format:
-
-```md
----
-name: implementer
-description: Implement code changes to satisfy the approved spec and tests.
-tools: read,find,grep,ls,write,edit,bash
-model: your-model-id
----
-System prompt body goes here.
-```
-
-Placement:
-- Project-local agents live in `.pi/agents/`.
-- Project-local extensions live in `.pi/extensions/`.
-
-Notes:
-- This scaffold assumes `pi` is installed on your machine.
-- I did not run the extension inside `pi` here, because `pi` is not installed in this workspace.
+See `GETTING-STARTED.md` for the full opening sequence and
+smoke-pass checklist.
 
 ## Cast
 

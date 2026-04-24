@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+# pi-seshat pre-commit hook — scans staged changes for common secret patterns.
+# Activate with: git config core.hooksPath .githooks
+
+set -euo pipefail
+
+PATTERNS=(
+  'HONCHO_API_KEY[[:space:]]*=[[:space:]]*"?hnc_'
+  'LINEAR_API_KEY[[:space:]]*=[[:space:]]*"?lin_api_'
+  'GITHUB_TOKEN[[:space:]]*=[[:space:]]*"?gh[ps]_'
+  'ANTHROPIC_API_KEY[[:space:]]*=[[:space:]]*"?sk-ant-'
+  'OPENAI_API_KEY[[:space:]]*=[[:space:]]*"?sk-[A-Za-z0-9]{20,}'
+  'AWS_SECRET_ACCESS_KEY'
+  'BEGIN (RSA|OPENSSH|DSA|EC|PGP) PRIVATE KEY'
+)
+
+FOUND=0
+for pat in "${PATTERNS[@]}"; do
+  if git diff --cached --no-color | grep -E -q "$pat"; then
+    echo "[pre-commit] Potential secret match for pattern: $pat" >&2
+    FOUND=1
+  fi
+done
+
+if [ "$FOUND" -ne 0 ]; then
+  echo "" >&2
+  echo "[pre-commit] Refusing to commit staged changes containing secret-like tokens." >&2
+  echo "[pre-commit] If this is a false positive, run: git commit --no-verify" >&2
+  exit 1
+fi
+
+exit 0
