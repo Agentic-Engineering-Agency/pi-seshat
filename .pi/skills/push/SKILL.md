@@ -1,6 +1,6 @@
 ---
 name: push
-description: Consent-gated git push with pre-flight checks and audit log. Use when pushing any branch. Dry-run by default; pass --i-approve to execute. Checks: clean tree, branch ahead of remote, not on main/master (use --allow-main to override), Spec-Slice: trailer in range, no open SpecSafe slice. Appends JSON to .pi/.push-log.jsonl on success.
+description: "Consent-gated git push with pre-flight checks and audit log. Use when pushing any branch. Dry-run by default; pass --i-approve to execute. Checks include clean tree, branch ahead of remote, not on main/master (use --allow-main to override), Spec-Slice trailer present in commit range, and no open SpecSafe slice. Appends JSON to .pi/.push-log.jsonl on success."
 ---
 
 # push
