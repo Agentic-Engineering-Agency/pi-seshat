@@ -12,6 +12,7 @@ bun.lockb
 .pi/.docs-registry-log.jsonl
 .pi/.doc-drafts/
 .pi/.docs-cache/
+.pi/.fallback-log.jsonl
 
 # Pi session files (machine-local)
 .pi/sessions/
