@@ -17,6 +17,21 @@ bun.lockb
 # Pi session files (machine-local)
 .pi/sessions/
 
+# Oh My Pi local state (mirrors .pi/ during slice-008 migration; same ignore policy)
+.omp/.honcho-state.json
+.omp/.honcho-state.json.corrupt-*
+.omp/.push-log.jsonl
+.omp/.linear-log.jsonl
+.omp/.github-log.jsonl
+.omp/.docs-registry-log.jsonl
+.omp/.doc-drafts/
+.omp/.docs-cache/
+.omp/.fallback-log.jsonl
+.omp/sessions/
+
+# Audit log lives at ~/.omp/agent/.fallback-log.jsonl, but if a project-scoped
+# log ever lands inside the repo via symlink chain it should not be tracked.
+
 # Editor/OS cruft
 .DS_Store
 .idea/
