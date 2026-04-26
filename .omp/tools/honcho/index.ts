@@ -3,6 +3,7 @@
  *
  * Source of truth: /home/fr/Code/Misc/pi/.pi/extensions/honcho/index.ts
  * SpecSafe slice: SPEC-20260424-001 — pi-honcho-bridge-v1
+ * Identity model updated: SPEC-20260426-008.1 — persona-prompt-identity
  *
  * Faithful port of the four tools (honcho_recall, honcho_search,
  * honcho_remember, honcho_conclude) onto the Oh My Pi `CustomToolFactory`
@@ -13,14 +14,24 @@
  *     dialect separator).
  *   - HONCHO_API_KEY is sanitized out of any error text before display.
  *
- * Identity model. Vanilla Pi exposes no per-tool agent identity field on
- * the execute context, and OMP's `CustomToolContext` likewise does not
- * expose one (see @oh-my-pi/pi-coding-agent/src/extensibility/custom-tools/types.ts).
- * Both versions therefore read identity (workspace, session, peer, key)
- * from process.env at call time, so the orchestrator can swap slices
- * without reloading the agent. We optionally hydrate missing env vars
- * from ~/.omp/agent/honcho.json on first use; the file shape matches the
- * pi-seshat ~/.pi/agent/honcho.json and the two MAY be symlinked together.
+ * Identity model (SPEC-008.1). This bridge uses a MODEL-TRUSTED allowlist.
+ * Each Ghola's persona prompt instructs the model to declare its peer identity
+ * via the `as_peer` parameter on every Honcho-write call. The tool validates
+ * the declared identity against CONCLUSION_WRITERS, but cannot cryptographically
+ * verify it — a misbehaving model can lie about `as_peer` and bypass the gate.
+ * This trade-off is accepted explicitly; see SPEC-008.1 §3.1 (a)/(b)/(c) for
+ * the primary-source analysis of why process-trusted enforcement is infeasible
+ * in @oh-my-pi/pi-coding-agent v14.4.0 (no per-agent identity field on
+ * CustomToolContext, no subagent_start hook, no safe per-spawn env-injection
+ * seam for concurrent dispatches). Defense-in-depth: the Steward product: prefix
+ * is an independent content-shape invariant; reviewer audit is the second line.
+ * Follow-up trigger: if upstream adds ctx.activeAgent?.name or a subagent_start
+ * hook event with agentName, switch to that as a hard cross-check against as_peer.
+ *
+ * OMP's `CustomToolContext` does not expose per-call agent identity.
+ * We optionally hydrate missing env vars from ~/.omp/agent/honcho.json on
+ * first use; the file shape matches the pi-seshat ~/.pi/agent/honcho.json
+ * and the two MAY be symlinked together.
  *
  * Cost-counter integration. The original extension bumps a per-slice
  * Honcho-call counter on the SpecSafe state file at
@@ -279,15 +290,18 @@ export function buildHonchoTools(opts: BuildOpts) {
 		description: "Record a message in the current session under the current peer identity.",
 		async execute(
 			_id: string,
-			params: { content: string; role?: "assistant" | "user" },
+			params: { content: string; role?: "assistant" | "user"; as_peer?: string },
 			_sig: AbortSignal,
 			_upd: unknown,
 			_ctx: { cwd: string },
 		): Promise<ToolResult> {
 			return guarded(async () => {
 				const env = hydrateFromConfigFile(opts.getEnv());
+				// SPEC-008.1: as_peer is optional for honcho_remember. If supplied, use
+				// the declared identity; otherwise fall back to env-derived HONCHO_PEER_ID.
+				const effectivePeer = params.as_peer ?? env.HONCHO_PEER_ID!;
 				const client = makeClient(env);
-				const peer = await client.peer(env.HONCHO_PEER_ID!);
+				const peer = await client.peer(effectivePeer);
 				const session = await client.session(env.HONCHO_SESSION_ID!);
 				// Honcho SDK accepts a heterogeneous message-builder array; cast
 				// is local to this call and matches the source extension.
@@ -305,24 +319,39 @@ export function buildHonchoTools(opts: BuildOpts) {
 			"Write a durable conclusion about the current peer. Restricted to validator/reviewer/steward peers.",
 		async execute(
 			_id: string,
-			params: { content: string },
+			params: { content: string; as_peer?: string },
 			_sig: AbortSignal,
 			_upd: unknown,
 			_ctx: { cwd: string },
 		): Promise<ToolResult> {
-			const env = hydrateFromConfigFile(opts.getEnv());
-			const peerId = env.HONCHO_PEER_ID ?? "";
-			if (!isConclusionWriter(peerId)) {
-				return errText(`peer ${peerId || "<unset>"} is not permitted to write conclusions`);
+			// SPEC-008.1 §3.2: validation order is exact — as_peer checks run BEFORE
+			// env checks so that a missing as_peer is rejected even when env is incomplete.
+
+			// Step 1: as_peer is REQUIRED for honcho_conclude. No env fallback.
+			if (!params.as_peer || params.as_peer.length === 0) {
+				return errText(
+					`as_peer is required for honcho_conclude and must be one of: ${[...CONCLUSION_WRITERS].join(", ")}`,
+				);
 			}
-			if (peerId === "steward" && !params.content.startsWith("product:")) {
+
+			// Step 2: validate declared identity against CONCLUSION_WRITERS allowlist.
+			if (!isConclusionWriter(params.as_peer)) {
+				return errText(`peer ${params.as_peer} is not permitted to write conclusions`);
+			}
+
+			// Step 3: steward product: prefix gate against declared identity.
+			if (params.as_peer === "steward" && !params.content.startsWith("product:")) {
 				return errText(
 					"steward conclusions must be prefixed with 'product:' — this is a dialect separator; engineering conclusions do not use it",
 				);
 			}
+
+			// Step 4: required-env check.
+			const env = hydrateFromConfigFile(opts.getEnv());
 			const missing = checkRequired(env);
 			if (missing) return errText(missing);
 
+			// Step 5: short-circuit for tests.
 			if (opts.__fakeConcludeResult) {
 				bumpHonchoCallCounter(process.cwd());
 				return okText("conclusion recorded (stub)", {
@@ -330,9 +359,10 @@ export function buildHonchoTools(opts: BuildOpts) {
 				});
 			}
 
+			// Step 6: network call — use declared as_peer identity, not env.
 			try {
 				const client = makeClient(env);
-				const peer = await client.peer(peerId);
+				const peer = await client.peer(params.as_peer);
 				const created = await peer.conclusions.create({
 					content: params.content,
 					sessionId: env.HONCHO_SESSION_ID,
@@ -424,9 +454,17 @@ const factory: CustomToolFactory = (pi) => {
 	const RememberParams = Type.Object({
 		content: Type.String(),
 		role: Type.Optional(StringEnum(["assistant", "user"] as const)),
+		as_peer: Type.Optional(Type.String({
+			minLength: 1,
+			description: "Optional override of the peer identity used to attribute this message. Defaults to the calling session's HONCHO_PEER_ID env.",
+		})),
 	});
 	const ConcludeParams = Type.Object({
 		content: Type.String(),
+		as_peer: Type.String({
+			minLength: 1,
+			description: "The Ghola peer identity making this conclusion. MUST match the declaring agent's persona name. Required; the allowlist rejects calls without it.",
+		}),
 	});
 
 	function adapt<TParams extends { execute: Function; label: string; description: string }>(

@@ -34,5 +34,7 @@ Before writing code against any external library or API, invoke `/skill:latest-d
 ## Memory protocol
 
 - On entry: call `honcho_recall` with a query about the task's topic to surface prior context. If the recall is empty or stale, proceed but flag the gap in your final response.
-- On exit: call `honcho_remember` with a one-paragraph summary of your conclusions or artifacts produced.
-- On PASS: call `honcho_conclude` with any durable engineering lesson this slice revealed.
+- On exit: call `honcho_remember` with a one-paragraph summary of your conclusions or artifacts produced. Pass `as_peer: 'validator'` on the call.
+- On PASS: call `honcho_conclude` with any durable engineering lesson this slice revealed. Pass `as_peer: 'validator'` — this parameter is required; calls without it are rejected.
+
+Your peer identity is `validator`. You are a member of `CONCLUSION_WRITERS`.

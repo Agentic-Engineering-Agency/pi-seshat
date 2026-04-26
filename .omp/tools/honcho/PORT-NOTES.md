@@ -22,6 +22,45 @@ All four tools (`honcho_recall`, `honcho_search`, `honcho_remember`,
   from `process.env` at call time, exactly as in the source. Optional
   hydration from `~/.omp/agent/honcho.json` is added — file shape is
   identical to `~/.pi/agent/honcho.json`, so the two MAY be symlinked.
+
+## Identity model under the `as_peer` contract (SPEC-008.1)
+
+As of SPEC-20260426-008.1, `honcho_conclude` requires an `as_peer` parameter
+carrying the Ghola's declared peer identity. The allowlist (`validator`,
+`reviewer`, `steward`) is validated against this declared value — NOT against
+`process.env.HONCHO_PEER_ID`.
+
+**This allowlist is model-trusted.** A misbehaving model can lie about
+`as_peer` and bypass the gate. This trade-off is accepted explicitly for the
+following reasons (see SPEC-008.1 §3.5):
+
+1. The threat model for pi-seshat is not adversarial — Gholas are our own
+   personas dispatched by our own orchestrator.
+2. The Steward `product:` prefix is an independent, content-shape invariant
+   that functions as a reviewer-visible audit trail.
+3. Process-trusted enforcement requires a per-agent identity surface that
+   v14.4.0 of `@oh-my-pi/pi-coding-agent` does not expose.
+
+**§3.1 identity-spoofing prevention decision summary:**
+
+- **(a) Read agent name from `ctx.sessionManager.getEntries()`** — INFEASIBLE.
+  `SessionEntry` union has no agent-identity type; `SessionInitEntry` stores
+  only `systemPrompt`, `task`, `tools`, `outputSchema`. No agent name field.
+- **(b) Write active agent name to a session-scoped scratch file on spawn** —
+  INFEASIBLE without a clean spawn seam. The `before_agent_start` and
+  `agent_start` hook events are parent-side with no agent-name payload;
+  `TASK_SUBAGENT_LIFECYCLE_CHANNEL` is private. Concurrent parallel dispatches
+  would race on any shared scratch file; `CustomToolContext` exposes no task id
+  to key per-task files.
+- **(c) Accept model-trust degradation explicitly (PRIMARY PATH)** — adopted.
+  Persona prompts instruct each Ghola to declare its identity via `as_peer`.
+  The tool validates the declared value. Defense-in-depth: Steward prefix +
+  reviewer audit.
+
+**Follow-up trigger:** if upstream adds `ctx.activeAgent?.name`, a
+`subagent_start` hook event with `agentName`, or any other in-process
+agent-identity surface, switch to that as a hard cross-check and reject
+`as_peer` mismatches as `isError`.
 - **TypeBox injected via `pi.typebox`** instead of imported from the
   `typebox` package. Schemas are constructed inside the factory; the
   test-callable inner factory (`buildHonchoTools`) does not depend on

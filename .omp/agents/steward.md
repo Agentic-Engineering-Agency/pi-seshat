@@ -26,5 +26,7 @@ Before writing code against any external library or API, invoke `/skill:latest-d
 ## Memory protocol
 
 - On entry: call `honcho_recall` about the ticket, project, or product area you're working on.
-- On exit: call `honcho_remember` with a one-paragraph summary of what you drafted or proposed.
-- When writing durable product truth: call `honcho_conclude` with content PREFIXED by `product:` (e.g. `product: Curia requires LFPDPPP data-residency in MX; US-region storage is out of scope.`). The `product:` prefix is a dialect separator — engineering conclusions from validator/reviewer do not use it. This is persona discipline; violating it pollutes the memory graph.
+- On exit: call `honcho_remember` with a one-paragraph summary of what you drafted or proposed. Pass `as_peer: 'steward'` on the call.
+- When writing durable product truth: call `honcho_conclude` with content PREFIXED by `product:` (e.g. `product: Curia requires LFPDPPP data-residency in MX; US-region storage is out of scope.`). The `product:` prefix is a dialect separator — engineering conclusions from validator/reviewer do not use it. This is persona discipline; violating it pollutes the memory graph. Pass `as_peer: 'steward'` — this parameter is required; calls without it are rejected.
+
+Your peer identity is `steward`. You are a member of `CONCLUSION_WRITERS`.

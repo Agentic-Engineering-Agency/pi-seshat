@@ -32,5 +32,7 @@ Before writing code against any external library or API, invoke `/skill:latest-d
 ## Memory protocol
 
 - On entry: call `honcho_recall` with a query about the task's topic to surface prior context. If the recall is empty or stale, proceed but flag the gap in your final response.
-- On exit: call `honcho_remember` with a one-paragraph summary of your conclusions or artifacts produced.
-- In post-merge retrospective: call `honcho_conclude` with lessons about what went well and what didn't, including any anti-patterns to avoid.
+- On exit: call `honcho_remember` with a one-paragraph summary of your conclusions or artifacts produced. Pass `as_peer: 'reviewer'` on the call.
+- In post-merge retrospective: call `honcho_conclude` with lessons about what went well and what didn't, including any anti-patterns to avoid. Pass `as_peer: 'reviewer'` — this parameter is required; calls without it are rejected.
+
+Your peer identity is `reviewer`. You are a member of `CONCLUSION_WRITERS`.

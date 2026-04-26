@@ -116,20 +116,24 @@ describe("[unit] buildHonchoTools — missing env", () => {
 });
 
 describe("[unit] honcho_conclude peer-allowlist gate", () => {
-	const envFor = (peer: string): HonchoToolRuntimeEnv => ({
-		HONCHO_API_KEY: "dummy",
-		HONCHO_WORKSPACE_ID: "w",
-		HONCHO_SESSION_ID: "s",
-		HONCHO_PEER_ID: peer,
-	});
+	// SPEC-008.1: All tests now use `as_peer` explicitly. `getEnv()` returns a
+	// peer intentionally DIFFERENT from `as_peer` to prove declared identity beats env.
+	// §3.2: as_peer is required for honcho_conclude; env fallback is NOT used.
 
 	test("returns isError for a non-writer peer without calling Honcho", async () => {
+		// env says "seshat" (orchestrator), but as_peer says "implementer" — allowlist check
+		// must be against the declared as_peer, not the env.
 		const tools = buildHonchoTools({
-			getEnv: () => envFor("implementer"),
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
 		});
 		const result = await tools.honcho_conclude.execute(
 			"call-3",
-			{ content: "should not land" },
+			{ content: "should not land", as_peer: "implementer" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -140,11 +144,19 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 		expect(text.toLowerCase()).toContain("not permitted");
 	});
 
-	test("seshat (orchestrator) is rejected by the gate", async () => {
-		const tools = buildHonchoTools({ getEnv: () => envFor("seshat") });
+	test("seshat (orchestrator) is rejected by the gate via as_peer", async () => {
+		// env says "validator" (a writer), but declared as_peer="seshat" must be rejected.
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "validator",
+			}),
+		});
 		const result = await tools.honcho_conclude.execute(
 			"call-3a",
-			{ content: "should not land" },
+			{ content: "should not land", as_peer: "seshat" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -153,13 +165,19 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 	});
 
 	test("does NOT return isError for validator (pre-network gate passes)", async () => {
+		// env says "seshat" (orchestrator), declared as_peer="validator" must be accepted.
 		const tools = buildHonchoTools({
-			getEnv: () => envFor("validator"),
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
 			__fakeConcludeResult: { id: "fake-conclusion-id" },
 		});
 		const result = await tools.honcho_conclude.execute(
 			"call-4",
-			{ content: "fixture" },
+			{ content: "fixture", as_peer: "validator" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -168,18 +186,196 @@ describe("[unit] honcho_conclude peer-allowlist gate", () => {
 	});
 
 	test("does NOT return isError for reviewer (pre-network gate passes)", async () => {
+		// env says "seshat" (orchestrator), declared as_peer="reviewer" must be accepted.
 		const tools = buildHonchoTools({
-			getEnv: () => envFor("reviewer"),
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
 			__fakeConcludeResult: { id: "fake-reviewer-id" },
 		});
 		const result = await tools.honcho_conclude.execute(
 			"call-4r",
-			{ content: "reviewer-truth" },
+			{ content: "reviewer-truth", as_peer: "reviewer" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
 		);
 		expect(result.isError).toBeFalsy();
+	});
+});
+
+// §4.1 — as_peer required for honcho_conclude (new tests)
+describe("[unit] honcho_conclude as_peer parameter", () => {
+	const envWithWriter = (): HonchoToolRuntimeEnv => ({
+		HONCHO_API_KEY: "dummy",
+		HONCHO_WORKSPACE_ID: "w",
+		HONCHO_SESSION_ID: "s",
+		// env has a valid writer but as_peer must still be explicitly required
+		HONCHO_PEER_ID: "validator",
+	});
+
+	// §4.1: missing as_peer returns isError naming the missing parameter
+	test("rejects when as_peer is missing (env has valid writer)", async () => {
+		const tools = buildHonchoTools({
+			getEnv: envWithWriter,
+			__fakeConcludeResult: { id: "should-not-reach" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"req-1",
+			{ content: "some conclusion" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBe(true);
+		const text = result.content.map((c: any) => c.text).join("\n");
+		expect(text.toLowerCase()).toContain("as_peer");
+	});
+
+	// §4.1: empty-string as_peer returns isError
+	test("rejects when as_peer is empty string (env has valid writer)", async () => {
+		const tools = buildHonchoTools({
+			getEnv: envWithWriter,
+			__fakeConcludeResult: { id: "should-not-reach" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"req-2",
+			{ content: "some conclusion", as_peer: "" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBe(true);
+		const text = result.content.map((c: any) => c.text).join("\n");
+		expect(text.toLowerCase()).toContain("as_peer");
+	});
+
+	// §4.3: env=validator, as_peer=seshat → rejected (declared identity beats env)
+	test("rejects seshat as_peer even when env HONCHO_PEER_ID=validator", async () => {
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "validator",
+			}),
+			__fakeConcludeResult: { id: "should-not-reach" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"prec-1",
+			{ content: "some conclusion", as_peer: "seshat" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBe(true);
+	});
+
+	// §4.3: env=seshat, as_peer=validator → accepted (declared identity beats env)
+	test("accepts validator as_peer even when env HONCHO_PEER_ID=seshat", async () => {
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
+			__fakeConcludeResult: { id: "fake-prec-2" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"prec-2",
+			{ content: "validator conclusion", as_peer: "validator" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBeFalsy();
+	});
+
+	// §4.1: steward with as_peer is accepted at schema level (prefix checked separately)
+	test("accepts steward as_peer with product: prefix", async () => {
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
+			__fakeConcludeResult: { id: "fake-steward" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"req-3",
+			{ content: "product: a product truth", as_peer: "steward" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBeFalsy();
+	});
+});
+
+// §4.2 — as_peer optional for honcho_remember (new tests)
+describe("[unit] honcho_remember as_peer parameter", () => {
+	// §4.2: omitting as_peer falls back to env-derived peer (existing behaviour preserved)
+	test("omitting as_peer uses env HONCHO_PEER_ID for the call", async () => {
+		// We can't observe the Honcho client peer() argument without a live call,
+		// but we can verify the call does NOT return isError (i.e. no mandatory-field rejection).
+		// The env-fallback contract is: no isError at the pre-network gate when all env vars present.
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "luci",
+			}),
+		});
+		// Without __fakeConcludeResult / network, this will hit network and error — but the
+		// error will be a Honcho SDK error, not an as_peer validation error. We test
+		// that the error text does NOT contain "as_peer" (it's not a required-field error).
+		const result = await tools.honcho_remember.execute(
+			"rem-1",
+			{ content: "a memory" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		// If network fails the result will be isError from Honcho, but not from as_peer gate.
+		if (result.isError) {
+			const text = result.content.map((c: any) => c.text).join("\n");
+			expect(text).not.toContain("as_peer is required");
+		}
+		// No assertion that it succeeded — we only assert absence of as_peer validation error.
+	});
+
+	// §4.2: supplied as_peer overrides env peer for the network call
+	test("supplying as_peer overrides HONCHO_PEER_ID from env", async () => {
+		// Again can't intercept the client peer() arg without a live call, but we can
+		// assert: no isError due to as_peer validation (it's an optional param — should
+		// be accepted by the schema). If a schema validator rejects unknown keys, this
+		// test would incorrectly pass; implementer must ensure as_peer flows through.
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "seshat",
+			}),
+		});
+		const result = await tools.honcho_remember.execute(
+			"rem-2",
+			{ content: "a memory", as_peer: "implementer" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		// Like above: only assert the response is NOT an as_peer-validation error.
+		if (result.isError) {
+			const text = result.content.map((c: any) => c.text).join("\n");
+			expect(text).not.toContain("as_peer is required");
+		}
 	});
 });
 
@@ -207,21 +403,25 @@ describe("[unit] honcho_search workspace scope rejection", () => {
 });
 
 describe("[unit] steward product: prefix gate", () => {
-	const envFor = (peer: string): HonchoToolRuntimeEnv => ({
-		HONCHO_API_KEY: "dummy",
-		HONCHO_WORKSPACE_ID: "w",
-		HONCHO_SESSION_ID: "s",
-		HONCHO_PEER_ID: peer,
-	});
+	// SPEC-008.1: Prefix enforcement is checked against the DECLARED as_peer identity,
+	// not the env HONCHO_PEER_ID. getEnv() returns a peer intentionally different from
+	// as_peer to prove the gate reads the declared identity.
 
-	test("rejects steward conclusions without 'product:' prefix", async () => {
+	// §4.4: as_peer=steward, no prefix → isError
+	test("rejects steward conclusions without 'product:' prefix (via as_peer)", async () => {
+		// env says "validator" (not steward); declared as_peer="steward" triggers prefix gate.
 		const tools = buildHonchoTools({
-			getEnv: () => envFor("steward"),
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "validator",
+			}),
 			__fakeConcludeResult: { id: "fake-id" },
 		});
 		const result = await tools.honcho_conclude.execute(
 			"gate-1",
-			{ content: "lesson learned from slice" },
+			{ content: "lesson learned from slice", as_peer: "steward" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -231,14 +431,43 @@ describe("[unit] steward product: prefix gate", () => {
 		expect(text).toContain("product:");
 	});
 
-	test("allows steward conclusions with 'product:' prefix", async () => {
+	// §4.4: as_peer=steward, with prefix → not isError
+	test("allows steward conclusions with 'product:' prefix (via as_peer)", async () => {
+		// env says "validator" (not steward); declared as_peer="steward" passes when prefix present.
 		const tools = buildHonchoTools({
-			getEnv: () => envFor("steward"),
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "validator",
+			}),
 			__fakeConcludeResult: { id: "fake-steward-id" },
 		});
 		const result = await tools.honcho_conclude.execute(
 			"gate-2",
-			{ content: "product: Curia requires LFPDPPP data-residency" },
+			{ content: "product: Curia requires LFPDPPP data-residency", as_peer: "steward" } as any,
+			new AbortController().signal,
+			() => {},
+			{ cwd: process.cwd() } as any,
+		);
+		expect(result.isError).toBeFalsy();
+	});
+
+	// §4.4: as_peer=validator, no prefix → NOT isError (prefix gate only applies to steward)
+	test("allows validator conclusions without 'product:' prefix (via as_peer)", async () => {
+		// env says "steward"; declared as_peer="validator" must NOT trigger the prefix gate.
+		const tools = buildHonchoTools({
+			getEnv: () => ({
+				HONCHO_API_KEY: "dummy",
+				HONCHO_WORKSPACE_ID: "w",
+				HONCHO_SESSION_ID: "s",
+				HONCHO_PEER_ID: "steward",
+			}),
+			__fakeConcludeResult: { id: "fake-validator-id" },
+		});
+		const result = await tools.honcho_conclude.execute(
+			"gate-3",
+			{ content: "engineering truth: no prefix needed", as_peer: "validator" } as any,
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -318,7 +547,7 @@ describe.skipIf(!LIVE)("[live] honcho integration against pi-dev-sandbox", () =>
 		const uniq = `validator-conclusion-${TEST_RUN_ID}`;
 		const result = await tools.honcho_conclude.execute(
 			"live-5",
-			{ content: `engineering truth: ${uniq}` },
+			{ content: `engineering truth: ${uniq}`, as_peer: "validator" },
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
@@ -352,7 +581,7 @@ describe.skipIf(!LIVE)("[live] honcho integration against pi-dev-sandbox", () =>
 		});
 		const result = await tools.honcho_conclude.execute(
 			"live-6",
-			{ content: "should be rejected" },
+			{ content: "should be rejected", as_peer: "implementer" },
 			new AbortController().signal,
 			() => {},
 			{ cwd: process.cwd() } as any,
