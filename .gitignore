@@ -37,3 +37,4 @@ bun.lockb
 .idea/
 .vscode/
 *.swp
+models_decisions.md
