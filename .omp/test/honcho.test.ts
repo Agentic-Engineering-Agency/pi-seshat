@@ -476,6 +476,43 @@ describe("[unit] steward product: prefix gate", () => {
 	});
 });
 
+// ---------------------------------------------------------------------------
+// [unit] CONCLUSION_WRITERS pin
+//
+// Imports CONCLUSION_WRITERS from the canonical extension AND from the inlined
+// skill copy in .omp/skills/memory/bin/_specsafe-state.ts. Asserts set-equality
+// so that any drift between the two is caught at the test boundary.
+//
+// NOTE: The import from _specsafe-state.ts will fail (Cannot find module) until
+// the implementer creates that file per SPEC-008.2 §3.2. This is the correct
+// TDD-red state. See SPEC-008.2 §3.3 for the drift-detection contract.
+//
+// WARNING: Depends on .pi/extensions/honcho/index.ts existing as canonical.
+// If .pi/ is decommissioned (slice-009), update or delete this pin test.
+// ---------------------------------------------------------------------------
+
+describe("[unit] CONCLUSION_WRITERS pin", () => {
+	test("canonical and memory-inlined sets contain the same three members", async () => {
+		const { CONCLUSION_WRITERS: canonical } = await import("../../.pi/extensions/honcho/index.ts");
+		const { CONCLUSION_WRITERS: memoryInlined } = await import("../skills/memory/bin/_specsafe-state.ts");
+
+		const canonicalSorted = Array.from(canonical).sort();
+		const memoryInlinedSorted = Array.from(memoryInlined).sort();
+
+		expect(canonicalSorted).toEqual(["reviewer", "steward", "validator"]);
+		expect(memoryInlinedSorted).toEqual(["reviewer", "steward", "validator"]);
+		expect(canonicalSorted).toEqual(memoryInlinedSorted);
+	});
+
+	test("canonical and memory-inlined sets both have size 3", async () => {
+		const { CONCLUSION_WRITERS: canonical } = await import("../../.pi/extensions/honcho/index.ts");
+		const { CONCLUSION_WRITERS: memoryInlined } = await import("../skills/memory/bin/_specsafe-state.ts");
+
+		expect(canonical.size).toBe(3);
+		expect(memoryInlined.size).toBe(3);
+	});
+});
+
 // ---------- [live] integration tests against pi-dev-sandbox ----------
 
 describe.skipIf(!LIVE)("[live] honcho integration against pi-dev-sandbox", () => {

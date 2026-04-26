@@ -73,3 +73,7 @@ All output is plain text — no JSON, no color codes. Numbers are right-aligned 
 | 0    | Success                                      |
 | 1    | Usage error (wrong args, slice not found)    |
 | 2    | State or network error (missing env, Honcho) |
+
+## Implementation notes
+
+This skill carries inline copies of the `statePathFor` / `readStateFileOrNull` helpers from `.pi/extensions/specsafe-session` (memory also inlines `CONCLUSION_WRITERS` from `.pi/extensions/honcho`) so that it runs identically under `pi` and `omp`. Pin tests under `.omp/test/specsafe.test.ts` and `.omp/test/honcho.test.ts` enforce shape parity with the canonical extensions; see SPEC-008.2.

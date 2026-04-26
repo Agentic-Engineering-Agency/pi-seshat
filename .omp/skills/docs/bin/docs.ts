@@ -17,7 +17,7 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import { readStateFileOrNull, statePathFor } from "../../../extensions/specsafe-session/index.ts";
+import { readStateFileOrNull, statePathFor } from "./_specsafe-state.ts";
 
 // ---------------------------------------------------------------------------
 // Types

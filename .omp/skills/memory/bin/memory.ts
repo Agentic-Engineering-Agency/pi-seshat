@@ -16,9 +16,8 @@
 
 import * as fs from "node:fs";
 import * as path from "node:path";
-import type { CostCounter, CurrentSlice, HistoryEntry, StateFile } from "../../../extensions/specsafe-session/index.ts";
-import { readStateFileOrNull, statePathFor } from "../../../extensions/specsafe-session/index.ts";
-import { CONCLUSION_WRITERS } from "../../../extensions/honcho/index.ts";
+import type { CostCounter, CurrentSlice, HistoryEntry, StateFile } from "./_specsafe-state.ts";
+import { readStateFileOrNull, statePathFor, CONCLUSION_WRITERS } from "./_specsafe-state.ts";
 
 // ---------------------------------------------------------------------------
 // Re-export types for consumers

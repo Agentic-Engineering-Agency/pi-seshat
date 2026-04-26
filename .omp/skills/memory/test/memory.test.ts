@@ -13,8 +13,37 @@ import { describe, expect, mock, test } from "bun:test";
 import * as fs from "node:fs";
 import * as os from "node:os";
 import * as path from "node:path";
-import type { StateFile } from "../../../extensions/specsafe-session/index.ts";
+import type { StateFile } from "../bin/_specsafe-state.ts";
+// NOTE: The smoke test below imports from ../bin/_specsafe-state.ts. That import
+// will fail (Cannot find module) until the implementer creates the file per
+// SPEC-008.2 §3.2. This is the correct TDD-red state.
 import { dispatch } from "../bin/memory.ts";
+
+// ---------------------------------------------------------------------------
+// [unit] SPEC-008.2 — module-load smoke test for _specsafe-state.ts inline copy
+//
+// Asserts that the inlined surface exported by ../bin/_specsafe-state.ts is
+// importable and exposes the expected shapes. Fails RED (Cannot find module)
+// until the implementer creates that file per SPEC-008.2 §3.2.
+// ---------------------------------------------------------------------------
+
+describe("[unit] _specsafe-state.ts module-load smoke", () => {
+	test("statePathFor is a function", async () => {
+		const mod = await import("../bin/_specsafe-state.ts");
+		expect(typeof mod.statePathFor).toBe("function");
+	});
+
+	test("readStateFileOrNull is a function", async () => {
+		const mod = await import("../bin/_specsafe-state.ts");
+		expect(typeof mod.readStateFileOrNull).toBe("function");
+	});
+
+	test("CONCLUSION_WRITERS is a Set with size 3", async () => {
+		const mod = await import("../bin/_specsafe-state.ts");
+		expect(mod.CONCLUSION_WRITERS).toBeInstanceOf(Set);
+		expect((mod.CONCLUSION_WRITERS as Set<string>).size).toBe(3);
+	});
+});
 
 // ---------------------------------------------------------------------------
 // Fixture helpers

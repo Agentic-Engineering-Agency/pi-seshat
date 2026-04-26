@@ -126,3 +126,7 @@ All draft files live under `.pi/.doc-drafts/` (gitignored, not committed to the 
 ## No Co-Authored-By
 
 Commits created by `docs apply` carry **no** `Co-Authored-By` trailer. The commit represents a human decision (Luci's approval) on a Steward-proposed change. The `Proposed-By: steward` and `Approved-By: luci` trailers make the authorship chain explicit without attributing to any AI agent.
+
+## Implementation notes
+
+This skill carries inline copies of the `statePathFor` / `readStateFileOrNull` helpers from `.pi/extensions/specsafe-session` so that it runs identically under `pi` and `omp`. Pin tests under `.omp/test/specsafe.test.ts` enforce shape parity with the canonical extensions; see SPEC-008.2.

@@ -161,6 +161,28 @@ function setupIntegrationRepo(): string {
 }
 
 // ---------------------------------------------------------------------------
+// [unit] SPEC-008.2 — module-load smoke test for _specsafe-state.ts inline copy
+//
+// Asserts that the inlined surface exported by ../bin/_specsafe-state.ts is
+// importable and exposes the expected shapes. Fails RED (Cannot find module)
+// until the implementer creates that file per SPEC-008.2 §3.2.
+//
+// NOTE: The docs skill does NOT inline CONCLUSION_WRITERS (only memory does).
+// ---------------------------------------------------------------------------
+
+describe("[unit] _specsafe-state.ts module-load smoke", () => {
+	test("statePathFor is a function", async () => {
+		const mod = await import("../bin/_specsafe-state.ts");
+		expect(typeof mod.statePathFor).toBe("function");
+	});
+
+	test("readStateFileOrNull is a function", async () => {
+		const mod = await import("../bin/_specsafe-state.ts");
+		expect(typeof mod.readStateFileOrNull).toBe("function");
+	});
+});
+
+// ---------------------------------------------------------------------------
 // [unit] AC11 — scope validation: reject non-docs/specs paths
 // ---------------------------------------------------------------------------
 
