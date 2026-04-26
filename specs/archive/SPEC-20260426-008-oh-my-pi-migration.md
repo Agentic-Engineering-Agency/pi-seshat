@@ -3,7 +3,9 @@ id: SPEC-20260426-008
 slug: oh-my-pi-migration
 slice: 8 of N
 title: Partial migration of pi-seshat onto Oh My Pi runtime
-status: phase-1-landed
+status: archived
+landed_full_on: 2026-04-26
+sub_slices: [008.0, 008.1, 008.2, 008.3, 008.4]
 author: opus-spec-writer (drafted on behalf of luci)
 approved_by: luci
 approved_on: 2026-04-26

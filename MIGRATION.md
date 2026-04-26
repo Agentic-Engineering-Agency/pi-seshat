@@ -51,22 +51,22 @@ One config edit. Flip `AGENTS.md` back to `pi`-bound dispatch and the next sessi
 - Meridian runs as a systemd user service throughout the migration. `~/.pi/agent/models.json` continues to point at `127.0.0.1:3456`.
 - The repo's `.pi/` directory is **not modified** during the migration.
 
-## Acceptance status — slice-008.0 landed 2026-04-26
+## Acceptance status — slice-008.4 cutover landed 2026-04-26
 
 | ID | Criterion | Status | Notes |
 |---|---|---|---|
 | A1 | `omp --version` + `agent.db` populated for six providers | ✅ Pass | omp v14.4.0; anthropic / openai-codex / google-antigravity / google-gemini-cli / github-copilot / kimi-code logged in |
 | A2 | Anthropic OAuth + stealth subscription routing | ✅ Pass | `claude-haiku-4-5` → PONG; billing-classifier survival empirically confirmed |
-| A3 | Fallback chain config + audit log | 🟡 Partial | Config installed; `fallback-audit.ts` hook subscribed to `auto_retry_*` events; full chain-trigger integration test deferred |
-| A4 | Honcho round-trip + allowlist + Steward `product:` prefix | 🟡 Unit-only | 14 unit tests pass; **production identity propagation pending slice-008.1** (per-spawn env-injection beat — see spec §5b.1) |
-| A5 | Each Ghola dispatches with correct trailers | 🟡 Partial | 7 personas ported; SpecSafe-subagents hook auto-commits with trailers on `tool_result`; per-Ghola identity blocked by same beat as A4 |
-| A6 | All six skills functional under `omp` | ❌ Pending | Skills ported verbatim; **`bin/` import refactor pending slice-008.2** (see spec §5b.3) |
-| A7 | `--i-approve` gate | ✅ Hook landed | `tool_call` pre-hook with mutation-pattern matchlist; integration test deferred to slice-008.x |
+| A3 | Fallback chain config + audit log | 🟡 Partial | Config installed; `fallback-audit.ts` hook subscribed to `auto_retry_*` events; full chain-trigger integration test deferred to live observation |
+| A4 | Honcho round-trip + allowlist + Steward `product:` prefix | ✅ Pass | Slice-008.1: `as_peer` parameter required on `honcho_conclude`, validates against declared identity (not env). 226+ unit tests; integration scaffolding under `.omp/test/migration/identity.test.ts` (gated `OMP_LIVE_TESTS=1`, awaiting omp programmatic dispatch surface). |
+| A5 | Each Ghola dispatches with correct identity + trailers | ✅ Pass at persona+code level | Slice-008.1: all seven personas declare `as_peer` in their Memory protocol. Slice-008.3: each persona pinned to a primary model + 5-link fallback chain. SpecSafe-subagents hook emits trailers on tool_result. Live trailer verification under real omp dispatch is part of behavioral A9 drill. |
+| A6 | All six skills functional under `omp` | ✅ Pass | Slice-008.2: `memory` + `docs` skills decoupled from vanilla-Pi extension imports via inline-copied `_specsafe-state.ts`; pin tests enforce shape parity with canonical extensions. `grep -rn "../../../extensions/" .omp/skills/` returns zero. |
+| A7 | `--i-approve` gate | ✅ Hook landed | `tool_call` pre-hook with mutation-pattern matchlist; integration test deferred to live observation |
 | A8 | Coexistence of `pi` and `omp` | ✅ Pass | Different binaries (`pi` vs `omp`), different config roots (`~/.pi/agent/` vs `~/.omp/agent/`), no PATH or config collision verified |
-| A9 | Rollback drill: <60s to `pi`-bound dispatch | ⏳ Untested | Mechanism is `AGENTS.md` edit; should drill before slice-009 |
-| A10 | `bun run typecheck` + `bun run test` baseline | ✅ Pass | 218 pass / 14 skip / 0 fail (was 197/8/0 — net +21 tests from `.omp/` ports) |
+| A9 | Rollback drill: <60s to `pi`-bound dispatch | 🟡 Mechanism verified | Symlinks at `~/.omp/agent/{hooks,tools,agents,skills}` resolve into the repo; `pi` (fnm path) and `omp` (mise+bun path) binaries both reachable; AGENTS.md cutover applied (slice-008.4). Behavioral round-trip drill (real task under omp → revert AGENTS.md → real task under pi) requires interactive operator engagement; <60s target depends on operator typing speed of one git revert. |
+| A10 | `bun run typecheck` + `bun run test` baseline | ✅ Pass | 238 pass / 15 skip / 0 fail (was 197/8/0 pre-omp — net +41 tests from `.omp/` ports + slice-008.1/2 additions) |
 
-Architectural constraints surfaced during implementation are documented in spec §5b. They motivate the 008.0 / 008.1 / 008.2 split rather than blocking the foundation work.
+Architectural constraints surfaced during slice-008.0 are documented in the master spec §5b and motivated the 008.0 / 008.1 / 008.2 split. Slices 008.1, 008.2, 008.3, and 008.4 (cutover) all landed on 2026-04-26.
 
 ## Risks tracked
 
