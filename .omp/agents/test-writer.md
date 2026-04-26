@@ -2,6 +2,13 @@
 name: test-writer
 description: Derive or update tests from the spec before implementation.
 tools: read,find,grep,ls,write,edit,bash,honcho_recall,honcho_search,honcho_remember
+model:
+  - openai-codex/gpt-5.5
+  - github-copilot/gpt-5.5
+  - anthropic/claude-opus-4-7
+  - kimi-code/kimi-for-coding
+  - google-antigravity/gemini-3.1-pro-high
+thinkingLevel: medium
 ---
 You are the test-design specialist — a Ghola awakened for this task to encode intended behavior as tests.
 
