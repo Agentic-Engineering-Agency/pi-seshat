@@ -16,7 +16,7 @@ The Honcho custom tool reads its environment variables at tool-call time, not at
 
 There are three categories of secret you need to think about:
 
-- **Memory secrets** — `HONCHO_API_KEY` and `HONCHO_PEER_NAME`. Without these, every Honcho tool call returns `errText("Missing required Honcho env vars: HONCHO_API_KEY, ...")` and the Ghola personas work in memoryless mode. The memory skill's file-only reads (`memory status`, `memory history`) still work because they read the local `.pi/.honcho-state.json`, but semantic recall and durable conclusions are dead in the water. The state-file path stays under `.pi/` even on the omp runtime — slice-008.0 deferred re-pointing it to slice-009 so coexistence reporting stays accurate.
+- **Memory secrets** — four required env vars: `HONCHO_API_KEY`, `HONCHO_WORKSPACE_ID`, `HONCHO_PEER_ID`, and a per-CWD `HONCHO_SESSION_ID`. The first three are stable (`HONCHO_API_KEY` from your account, `HONCHO_WORKSPACE_ID="oh-my-pi"` is the per-tool workspace omp writes into, `HONCHO_PEER_ID="Luci"` is your stable identity). The fourth is dynamic — derived from `$(basename "$PWD")` per project, so opening omp in `~/Code/Misc/pi` becomes session `luci-pi`, opening in `~/agentic-engineering/curia-ai` becomes `luci-curia-ai`. The `omp` shell function in section "Setting the missing ones" handles this derivation automatically. Without these, every Honcho tool call returns `errText("Missing required Honcho env vars: ...")` and the Ghola personas work in memoryless mode. Workspaces and sessions auto-create on first reference per Honcho's get-or-create semantics — no pre-provisioning step needed. The memory skill's file-only reads (`memory status`, `memory history`) still work because they read the local `.pi/.honcho-state.json`, but semantic recall and durable conclusions are dead in the water. The state-file path stays under `.pi/` even on the omp runtime — slice-008.0 deferred re-pointing it to slice-009 so coexistence reporting stays accurate.
 - **External-surface secrets** — `LINEAR_API_KEY` and `gh auth`. These gate the four external-surface skills under `.omp/skills/`. Partial setup is survivable: if `LINEAR_API_KEY` is missing, the `github pr create` Linear-state invariant auto-skips with a notice (spec-005 Q2); if `gh auth` is missing, the `github` skill refuses with exit 127 and the exact login command. So you can run with one but not the other — it just narrows what the system can do.
 - **Test-only secrets** — `HONCHO_TESTS_LIVE=1`, `LINEAR_TESTS_LIVE=1`, and `OMP_LIVE_TESTS=1`. These un-skip the integration tests gated by `describe.skipIf(!LIVE)`. The third one (`OMP_LIVE_TESTS=1`) gates the slice-008.1 identity-propagation integration test under `.omp/test/migration/identity.test.ts`, which is currently scaffolding-only awaiting an omp programmatic dispatch surface. Set only when running `bun run test:live`.
 
@@ -27,14 +27,17 @@ Paste this into a fresh terminal to see what is and isn't set:
 ```bash
 cd /home/fr/Code/Misc/pi
 
-printf 'HONCHO_API_KEY:   %s\nHONCHO_PEER_NAME: %s\nLINEAR_API_KEY:   %s\n' \
+printf 'HONCHO_API_KEY:      %s\nHONCHO_WORKSPACE_ID: %s\nHONCHO_PEER_ID:      %s\nLINEAR_API_KEY:      %s\n' \
   "$([ -n "$HONCHO_API_KEY" ] && echo "set (${#HONCHO_API_KEY} chars)" || echo "MISSING")" \
-  "${HONCHO_PEER_NAME:-MISSING}" \
+  "${HONCHO_WORKSPACE_ID:-MISSING}" \
+  "${HONCHO_PEER_ID:-MISSING}" \
   "$([ -n "$LINEAR_API_KEY" ] && echo "set (${#LINEAR_API_KEY} chars)" || echo "MISSING")"
 
+# HONCHO_SESSION_ID is derived per-invocation by the omp() shell function — verify the wiring:
+type omp 2>&1 | head -5
+
 gh auth status 2>&1 | grep -E 'Logged in|account' || echo "gh auth: MISSING"
-PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:/home/fr/.cache/.bun/bin:$PATH" \
-  omp --version || echo "omp: MISSING"
+omp --version || echo "omp: MISSING (re-source ~/.bashrc and confirm the omp function is defined)"
 pi --version || echo "pi: MISSING (rollback hatch — only needed if you intend to fall back)"
 bun --version || echo "bun: MISSING"
 ```
@@ -42,30 +45,39 @@ bun --version || echo "bun: MISSING"
 Expected healthy output:
 
 ```
-HONCHO_API_KEY:   set (52 chars)
-HONCHO_PEER_NAME: Luci
-LINEAR_API_KEY:   set (53 chars)
+HONCHO_API_KEY:      set (66 chars)
+HONCHO_WORKSPACE_ID: oh-my-pi
+HONCHO_PEER_ID:      Luci
+LINEAR_API_KEY:      set (53 chars)
+omp is a function
+omp ()
+{
+    PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" HONCHO_SESSION_ID="luci-$(basename "$PWD")" command omp "$@"
+}
   ✓ Logged in to github.com as luci-efe
 omp/14.4.0
 pi 0.70.2
 1.3.13
 ```
 
-Note the omp PATH prepend. The shell hooks may have stale 1.3.6 bun paths baked in; the explicit prepend ensures the mise-managed bun 1.3.13 (omp's minimum) is used. Add it to your shell aliases if you'll be invoking omp interactively often:
-
-```bash
-# In ~/.bashrc
-alias omp='PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" omp'
-```
+Note that `omp` is a shell function, not a binary alias. It does two things: prepends the mise-managed bun 1.3.13 path (omp requires bun >=1.3.7 and your shell hooks may have stale 1.3.6 baked in) AND derives `HONCHO_SESSION_ID="luci-$(basename "$PWD")"` per invocation, so each project automatically gets a stable Honcho session named after its directory. No per-project ceremony, no static pinning.
 
 ### Setting the missing ones
 
-For anything that reports `MISSING`, export it in the terminal and persist via `~/.bashrc`:
+For anything that reports `MISSING`, export it in the terminal and persist via `~/.bashrc`. The slice-008.6 omp/Honcho block (workspace + peer + the `omp()` function) is the most important addition — without it omp has no session identity and every Honcho call fails:
 
 ```bash
-# Honcho — if not already in ~/.bashrc
-export HONCHO_API_KEY="hnc_..."
-export HONCHO_PEER_NAME="Luci"
+# Honcho — API key from app.honcho.dev, workspace and peer per slice-008.6
+export HONCHO_API_KEY="hch-v3-..."
+export HONCHO_WORKSPACE_ID="oh-my-pi"
+export HONCHO_PEER_ID="Luci"
+
+# omp launcher — prepends mise+bun PATH and derives session per CWD
+omp() {
+  PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" \
+  HONCHO_SESSION_ID="luci-$(basename "$PWD")" \
+  command omp "$@"
+}
 
 # Linear — get a key at Linear → Settings → API → Personal API keys
 # Scope: Read + Write (the skill transitions tickets, not just reads)
@@ -73,11 +85,15 @@ export LINEAR_API_KEY="lin_api_..."
 
 # GitHub — one-time interactive auth
 gh auth login --scopes repo,workflow
+```
 
-# Persist Honcho + Linear keys to ~/.bashrc (idempotent)
-grep -q HONCHO_API_KEY ~/.bashrc || echo 'export HONCHO_API_KEY="hnc_..."' >> ~/.bashrc
-grep -q HONCHO_PEER_NAME ~/.bashrc || echo 'export HONCHO_PEER_NAME="Luci"' >> ~/.bashrc
-grep -q LINEAR_API_KEY ~/.bashrc || echo 'export LINEAR_API_KEY="lin_api_..."' >> ~/.bashrc
+To persist any of these idempotently:
+
+```bash
+grep -q HONCHO_API_KEY ~/.bashrc      || echo 'export HONCHO_API_KEY="hch-v3-..."'      >> ~/.bashrc
+grep -q HONCHO_WORKSPACE_ID ~/.bashrc || echo 'export HONCHO_WORKSPACE_ID="oh-my-pi"' >> ~/.bashrc
+grep -q HONCHO_PEER_ID ~/.bashrc      || echo 'export HONCHO_PEER_ID="Luci"'           >> ~/.bashrc
+grep -q LINEAR_API_KEY ~/.bashrc      || echo 'export LINEAR_API_KEY="lin_api_..."'    >> ~/.bashrc
 ```
 
 Replace the placeholder values with real tokens before pasting. Do NOT commit `.bashrc` anywhere visible; it contains secrets in plaintext. The pre-commit hook shipped with this repo (`.githooks/pre-commit`) scans staged diffs for these exact patterns and aborts the commit on match — activate it per-clone with:
@@ -216,7 +232,21 @@ Working preferences that override generic defaults:
     provider I tolerate (and even Kimi has a subscription path via
     the kimi-code provider)
 
-Honcho memory convention:
+Honcho memory convention (slice-008.6 wiring):
+  • Workspace = `oh-my-pi` for all omp work — one workspace per
+    tool, per Honcho design-pattern docs. Cross-project recall ("what
+    did I learn about X in any repo?") works because every project's
+    sessions live inside this single workspace.
+  • Session = `luci-<basename-of-cwd>` — derived per-invocation by
+    the omp shell function. Pi-seshat is `luci-pi`, Curia would be
+    `luci-curia-ai`, etc. Stable across many sessions in the same
+    project; resets context only at the workspace level.
+  • Peer = `Luci` for me (orchestrator), plus one per Ghola
+    (`validator`, `reviewer`, `steward`, `spec-writer`, `test-writer`,
+    `implementer`, `doc-scout`) declared via slice-008.1's `as_peer`
+    parameter.
+
+  Original convention (still applies on top of the above):
   • Workspace = one per project (curia, matro, agentic-pm-kit,
     billy, heineken, pi-dev-sandbox for tests). This session is
     workspace=pi-dev-sandbox.
