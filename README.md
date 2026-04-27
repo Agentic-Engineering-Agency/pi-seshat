@@ -3,9 +3,10 @@
 Custom Pi installation that layers Seshat the Ghola — a memory-bearing
 orchestrator — on top of @mariozechner/pi-coding-agent. Adds Honcho-backed
 durable memory, SpecSafe session lifecycle with per-slice cost accounting,
-agent-aware git commit trailers, and six safety-wrapped external-surface
-skills (push, memory, linear, docs, github, latest-docs) gated behind an
---i-approve idiom.
+agent-aware git commit trailers, eight safety-wrapped external-surface skills
+(push, memory, linear, docs, github, latest-docs, specsafe, env-doctor) gated
+behind an --i-approve idiom, a `coherence` consistency checker, and a
+`bootstrap` skill that propagates the system to any other project via symlink.
 
 The name: Seshat is the Egyptian goddess of writing and records; a Ghola
 is a Dune-universe regrown-consciousness. The system reflects both —
@@ -21,7 +22,7 @@ Three tiers of Pi extension:
   reviewer), plus the Steward (product-owner per project) and doc-scout
   (fetches latest official docs before code).
 - **Hooks and tools** (`.omp/hooks/*.ts`, `.omp/tools/honcho/index.ts`) — ported lifecycle hooks (`specsafe-session`, `specsafe-subagents`, `i-approve`, `fallback-audit`) and the Honcho memory bridge as an omp `CustomToolFactory`. See `.omp/hooks/PORT-NOTES.md` and `.omp/tools/honcho/PORT-NOTES.md` for what was ported faithfully and what was deliberately dropped. The vanilla `.pi/extensions/` tree remains as the rollback hatch (slice-008.4 cutover; A8 acceptance).
-- **Skills** (`.omp/skills/<name>/{bin/,SKILL.md,README.md}`) — seven CLI-wrapped capabilities (push, memory, linear, docs, github, latest-docs, specsafe). Every external mutation is `--i-approve`-gated and writes a forensic JSONL audit log (mode 0600, gitignored).
+- **Skills** (`.omp/skills/<name>/{bin/,SKILL.md,README.md}`) -- nine CLI-wrapped capabilities: six external-surface (push, memory, linear, docs, github, latest-docs) and three internal-tooling (specsafe slice lifecycle, env-doctor pre-flight, coherence drift checker), plus a `bootstrap` skill that initializes any foreign project to use this system via `.omp` symlink + AGENTS.md/CLAUDE.md templates. Every external mutation is `--i-approve`-gated and writes a forensic JSONL audit log (mode 0600, gitignored).
 
 ## SpecSafe workflow
 
