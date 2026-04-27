@@ -544,7 +544,7 @@ describe("project registry + gitignore", () => {
 		}
 	});
 
-	test("AC8: .pi/.docs-cache/ and .pi/.docs-registry-log.jsonl are gitignored", () => {
+	test("AC8: .omp/.docs-cache/ and .pi/.docs-registry-log.jsonl are gitignored", () => {
 		const repoRoot = path.resolve(import.meta.dir, "../../../..");
 		const gi = fs.readFileSync(path.join(repoRoot, ".gitignore"), "utf8");
 		expect(gi).toMatch(/\.pi\/\.docs-cache\//);

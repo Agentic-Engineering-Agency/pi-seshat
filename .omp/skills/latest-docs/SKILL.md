@@ -92,7 +92,7 @@ Flags:
 ## Cache layout
 
 ```
-.pi/.docs-cache/
+.omp/.docs-cache/
   @honcho-ai-sdk/
     2026-04-24.md
     2026-05-01.md    # re-fetched after expiry
@@ -182,25 +182,25 @@ For updates (`action: "update"`), `before` is the prior registry entry. The log 
 
 ```bash
 # List all registered libraries with freshness status
-bun run .pi/skills/latest-docs/bin/latest-docs.ts list
+bun run .omp/skills/latest-docs/bin/latest-docs.ts list
 
 # Fetch (cache-aware — skips network if fresh)
-bun run .pi/skills/latest-docs/bin/latest-docs.ts fetch @honcho-ai/sdk
+bun run .omp/skills/latest-docs/bin/latest-docs.ts fetch @honcho-ai/sdk
 
 # Force re-fetch regardless of TTL
-bun run .pi/skills/latest-docs/bin/latest-docs.ts fetch @honcho-ai/sdk --refresh
+bun run .omp/skills/latest-docs/bin/latest-docs.ts fetch @honcho-ai/sdk --refresh
 
 # Print full cached docs
-bun run .pi/skills/latest-docs/bin/latest-docs.ts show hono
+bun run .omp/skills/latest-docs/bin/latest-docs.ts show hono
 
 # Print only the "Getting Started" subtree
-bun run .pi/skills/latest-docs/bin/latest-docs.ts show hono --section="Getting Started"
+bun run .omp/skills/latest-docs/bin/latest-docs.ts show hono --section="Getting Started"
 
 # Preview a new registration (no-op, exit 0)
-bun run .pi/skills/latest-docs/bin/latest-docs.ts register my-lib https://example.com/docs --type=html --selector=main
+bun run .omp/skills/latest-docs/bin/latest-docs.ts register my-lib https://example.com/docs --type=html --selector=main
 
 # Commit the registration and audit-log it
-bun run .pi/skills/latest-docs/bin/latest-docs.ts register my-lib https://example.com/docs --type=html --selector=main --i-approve
+bun run .omp/skills/latest-docs/bin/latest-docs.ts register my-lib https://example.com/docs --type=html --selector=main --i-approve
 ```
 
 ## Integration with doc-scout

@@ -18,7 +18,7 @@ No separate installation needed. Requires Bun and the `@honcho-ai/sdk` package (
 ### `status`
 
 ```
-bun run .pi/skills/memory/bin/memory.ts status
+bun run .omp/skills/memory/bin/memory.ts status
 ```
 
 Reads `.pi/.honcho-state.json`. If a slice is open, prints:
@@ -41,7 +41,7 @@ Exit 0 in both cases.
 ### `review <session-id>`
 
 ```
-bun run .pi/skills/memory/bin/memory.ts review <session-id>
+bun run .omp/skills/memory/bin/memory.ts review <session-id>
 ```
 
 Looks up the session in the state file (current slice or history). Fetches conclusions from Honcho for each conclusion-writer peer (validator, reviewer, steward) and filters to those whose `created_at` falls within the session's `beganAt..endedAt` window, with a ±5 s grace band.
@@ -63,8 +63,8 @@ Exit codes:
 ### `cost [<slice-id>]`
 
 ```
-bun run .pi/skills/memory/bin/memory.ts cost
-bun run .pi/skills/memory/bin/memory.ts cost SPEC-20260424-003
+bun run .omp/skills/memory/bin/memory.ts cost
+bun run .omp/skills/memory/bin/memory.ts cost SPEC-20260424-003
 ```
 
 Prints a cost breakdown table:
@@ -91,8 +91,8 @@ Exit codes:
 ### `history [--limit=N]`
 
 ```
-bun run .pi/skills/memory/bin/memory.ts history
-bun run .pi/skills/memory/bin/memory.ts history --limit=5
+bun run .omp/skills/memory/bin/memory.ts history
+bun run .omp/skills/memory/bin/memory.ts history --limit=5
 ```
 
 Prints recent finished slices. Default `N=10`. Columns: `sliceId | outcome | began | ended | cost`.
@@ -102,7 +102,7 @@ Exit 0 always (prints "(no history)" if empty).
 ### `search <query>`
 
 ```
-bun run .pi/skills/memory/bin/memory.ts search "query text"
+bun run .omp/skills/memory/bin/memory.ts search "query text"
 ```
 
 Searches Honcho at workspace scope by iterating over conclusion-writer peers (validator, reviewer, steward) and merging results. Output format:

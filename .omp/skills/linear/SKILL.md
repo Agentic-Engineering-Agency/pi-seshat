@@ -86,17 +86,17 @@ Every approved mutation appends one JSON line to `.pi/.linear-log.jsonl` (gitign
 
 ```bash
 # Read operations (immediate)
-bun run .pi/skills/linear/bin/linear.ts list
-bun run .pi/skills/linear/bin/linear.ts list --team=CUR --state=in_progress
-bun run .pi/skills/linear/bin/linear.ts get CUR-92
+bun run .omp/skills/linear/bin/linear.ts list
+bun run .omp/skills/linear/bin/linear.ts list --team=CUR --state=in_progress
+bun run .omp/skills/linear/bin/linear.ts get CUR-92
 
 # Dry-run mutations (safe, exit 0)
-bun run .pi/skills/linear/bin/linear.ts comment CUR-92 "Looks good to me"
-bun run .pi/skills/linear/bin/linear.ts transition CUR-92 in_review
-bun run .pi/skills/linear/bin/linear.ts create --team=team-uuid --title="Fix the widget"
+bun run .omp/skills/linear/bin/linear.ts comment CUR-92 "Looks good to me"
+bun run .omp/skills/linear/bin/linear.ts transition CUR-92 in_review
+bun run .omp/skills/linear/bin/linear.ts create --team=team-uuid --title="Fix the widget"
 
 # Approved mutations (execute + log)
-bun run .pi/skills/linear/bin/linear.ts comment CUR-92 "Looks good to me" --i-approve
-bun run .pi/skills/linear/bin/linear.ts transition CUR-92 done --i-approve
-bun run .pi/skills/linear/bin/linear.ts create --team=team-uuid --title="Fix the widget" --body="Details here" --i-approve
+bun run .omp/skills/linear/bin/linear.ts comment CUR-92 "Looks good to me" --i-approve
+bun run .omp/skills/linear/bin/linear.ts transition CUR-92 done --i-approve
+bun run .omp/skills/linear/bin/linear.ts create --team=team-uuid --title="Fix the widget" --body="Details here" --i-approve
 ```

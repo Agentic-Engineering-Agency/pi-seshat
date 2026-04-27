@@ -15,7 +15,7 @@ Steward produces a unified diff + rationale and calls `docs propose`. The diff l
 
 ```bash
 # Read unified diff from stdin; require rationale explaining why
-bun run .pi/skills/docs/bin/docs.ts propose docs/PRD.md --rationale="add onboarding section"
+bun run .omp/skills/docs/bin/docs.ts propose docs/PRD.md --rationale="add onboarding section"
 ```
 
 - Scope check: `<path>` must start with `docs/`, `specs/`, or `specs/briefs/`. Anything else is refused with a clear error.
@@ -26,7 +26,7 @@ bun run .pi/skills/docs/bin/docs.ts propose docs/PRD.md --rationale="add onboard
 ### list
 
 ```bash
-bun run .pi/skills/docs/bin/docs.ts list
+bun run .omp/skills/docs/bin/docs.ts list
 ```
 
 Lists all pending drafts as a table: `id | target | proposed_at | rationale (first 60 chars)`.
@@ -35,7 +35,7 @@ Prints `"no pending drafts"` when the queue is empty. Does not show discarded or
 ### show
 
 ```bash
-bun run .pi/skills/docs/bin/docs.ts show 2026-04-24T14:02:11Z-prd-md
+bun run .omp/skills/docs/bin/docs.ts show 2026-04-24T14:02:11Z-prd-md
 ```
 
 Prints the full patch file (rationale block + unified diff) to stdout. Exits non-zero if the ID is not found.
@@ -44,10 +44,10 @@ Prints the full patch file (rationale block + unified diff) to stdout. Exits non
 
 ```bash
 # Dry-run (default): preview what would be applied
-bun run .pi/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md
+bun run .omp/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md
 
 # Approved apply: patch, stage, commit
-bun run .pi/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md --i-approve
+bun run .omp/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md --i-approve
 ```
 
 Without `--i-approve`: prints the full diff + `"NOT YET APPLIED (rerun with --i-approve)"`. Exit 0.
@@ -72,7 +72,7 @@ With `--i-approve`:
 ### discard
 
 ```bash
-bun run .pi/skills/docs/bin/docs.ts discard 2026-04-24T14:02:11Z-prd-md
+bun run .omp/skills/docs/bin/docs.ts discard 2026-04-24T14:02:11Z-prd-md
 ```
 
 Moves the draft to `.pi/.doc-drafts/.discarded/<id>.patch`. Creates `.discarded/` if absent. Exits non-zero if the ID is not found.
@@ -96,18 +96,18 @@ docs skill is scoped to BMad artifacts (paths must start with docs/, specs/, or 
 
 ```bash
 # 1. Steward proposes a diff (run by Steward agent):
-git diff HEAD docs/PRD.md | bun run .pi/skills/docs/bin/docs.ts propose docs/PRD.md \
+git diff HEAD docs/PRD.md | bun run .omp/skills/docs/bin/docs.ts propose docs/PRD.md \
   --rationale="add section 4 — onboarding flow per CUR-42"
 
 # 2. Luci reviews:
-bun run .pi/skills/docs/bin/docs.ts list
-bun run .pi/skills/docs/bin/docs.ts show 2026-04-24T14:02:11Z-prd-md
+bun run .omp/skills/docs/bin/docs.ts list
+bun run .omp/skills/docs/bin/docs.ts show 2026-04-24T14:02:11Z-prd-md
 
 # 3a. Luci approves:
-bun run .pi/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md --i-approve
+bun run .omp/skills/docs/bin/docs.ts apply 2026-04-24T14:02:11Z-prd-md --i-approve
 
 # 3b. Luci rejects:
-bun run .pi/skills/docs/bin/docs.ts discard 2026-04-24T14:02:11Z-prd-md
+bun run .omp/skills/docs/bin/docs.ts discard 2026-04-24T14:02:11Z-prd-md
 ```
 
 ## Storage

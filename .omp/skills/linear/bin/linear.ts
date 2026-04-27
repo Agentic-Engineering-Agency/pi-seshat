@@ -8,11 +8,11 @@
  * Approved mutations are logged to .pi/.linear-log.jsonl (mode 0600).
  *
  * Usage:
- *   bun run .pi/skills/linear/bin/linear.ts list [--team=KEY] [--state=in_progress] [--assignee=me]
- *   bun run .pi/skills/linear/bin/linear.ts get CUR-92
- *   bun run .pi/skills/linear/bin/linear.ts comment CUR-92 "body" [--i-approve]
- *   bun run .pi/skills/linear/bin/linear.ts transition CUR-92 in_review [--i-approve]
- *   bun run .pi/skills/linear/bin/linear.ts create --team=<id> --title=<t> [--body=<b>] [--i-approve]
+ *   bun run .omp/skills/linear/bin/linear.ts list [--team=KEY] [--state=in_progress] [--assignee=me]
+ *   bun run .omp/skills/linear/bin/linear.ts get CUR-92
+ *   bun run .omp/skills/linear/bin/linear.ts comment CUR-92 "body" [--i-approve]
+ *   bun run .omp/skills/linear/bin/linear.ts transition CUR-92 in_review [--i-approve]
+ *   bun run .omp/skills/linear/bin/linear.ts create --team=<id> --title=<t> [--body=<b>] [--i-approve]
  *
  * SDK: @linear/sdk v82.1.0
  * Key method signatures used:

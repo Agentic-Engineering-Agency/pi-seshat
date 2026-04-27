@@ -8,8 +8,8 @@
  *   [live]  — real Linear API, skipped unless LINEAR_TESTS_LIVE=1.
  *
  * Run unit only:  bun test --test-name-pattern='\[unit\]'
- * Run all:        bun test ./.pi/skills/linear/test/linear.test.ts
- * Run live:       LINEAR_TESTS_LIVE=1 bun test ./.pi/skills/linear/test/linear.test.ts
+ * Run all:        bun test ./.omp/skills/linear/test/linear.test.ts
+ * Run live:       LINEAR_TESTS_LIVE=1 bun test ./.omp/skills/linear/test/linear.test.ts
  */
 
 import { afterEach, beforeEach, describe, expect, mock, test } from "bun:test";

@@ -77,23 +77,23 @@ Every approved mutation appends one JSON line to `.pi/.github-log.jsonl`:
 
 ```bash
 # Reads (immediate)
-./.pi/skills/github/bin/github.sh pr view 42
-./.pi/skills/github/bin/github.sh repo view
+./.omp/skills/github/bin/github.sh pr view 42
+./.omp/skills/github/bin/github.sh repo view
 
 # Dry-run mutations (safe, exit 0, prints preview + Linear context)
-./.pi/skills/github/bin/github.sh pr create --title="Fix login bug"
-./.pi/skills/github/bin/github.sh pr comment 42 "LGTM pending CI"
+./.omp/skills/github/bin/github.sh pr create --title="Fix login bug"
+./.omp/skills/github/bin/github.sh pr comment 42 "LGTM pending CI"
 
 # Approved mutations (execute + log)
-./.pi/skills/github/bin/github.sh pr create --title="Fix login bug" --i-approve
-./.pi/skills/github/bin/github.sh pr merge 42 --squash --i-approve
+./.omp/skills/github/bin/github.sh pr create --title="Fix login bug" --i-approve
+./.omp/skills/github/bin/github.sh pr merge 42 --squash --i-approve
 
 # Conscious override of the Linear invariant
-./.pi/skills/github/bin/github.sh pr create --title="hotfix" --bypass-linear-check --i-approve
+./.omp/skills/github/bin/github.sh pr create --title="hotfix" --bypass-linear-check --i-approve
 ```
 
 ## Env overrides (tests only)
 
 - `PI_GITHUB_GH_CMD` — replace `gh` with an alternate command (used by the test harness for stubbing).
-- `PI_GITHUB_LINEAR_CMD` — replace the default `bun run .pi/skills/linear/bin/linear.ts` invocation.
+- `PI_GITHUB_LINEAR_CMD` — replace the default `bun run .omp/skills/linear/bin/linear.ts` invocation.
 - `PI_GITHUB_APPROVER` — override the approver name recorded in the log (default: `luci`).

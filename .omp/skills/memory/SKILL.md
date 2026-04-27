@@ -19,7 +19,7 @@ Provides read-only visibility into SpecSafe slice state and Honcho memory. No mu
 Print a summary of the currently open slice, including cost counters.
 
 ```
-bun run .pi/skills/memory/bin/memory.ts status
+bun run .omp/skills/memory/bin/memory.ts status
 ```
 
 If no slice is open, prints "no slice currently open" and shows the last 3 history entries.
@@ -29,7 +29,7 @@ If no slice is open, prints "no slice currently open" and shows the last 3 histo
 List all Honcho conclusions written during the given session, filtered to conclusions whose `created_at` falls within the session's `beganAt..endedAt` window (with a ±5 s grace band).
 
 ```
-bun run .pi/skills/memory/bin/memory.ts review sess-xyz789
+bun run .omp/skills/memory/bin/memory.ts review sess-xyz789
 ```
 
 Iterates over the three conclusion-writer peers (validator, reviewer, steward) and aggregates results.
@@ -39,8 +39,8 @@ Iterates over the three conclusion-writer peers (validator, reviewer, steward) a
 Print a human-readable cost breakdown for a slice.
 
 ```
-bun run .pi/skills/memory/bin/memory.ts cost
-bun run .pi/skills/memory/bin/memory.ts cost SPEC-20260424-003
+bun run .omp/skills/memory/bin/memory.ts cost
+bun run .omp/skills/memory/bin/memory.ts cost SPEC-20260424-003
 ```
 
 If `<slice-id>` is omitted, uses the current open slice; if no slice is open, uses the most recent history entry.
@@ -50,8 +50,8 @@ If `<slice-id>` is omitted, uses the current open slice; if no slice is open, us
 Print recent finished slices with their outcome and cost. Default limit is 10.
 
 ```
-bun run .pi/skills/memory/bin/memory.ts history
-bun run .pi/skills/memory/bin/memory.ts history --limit=5
+bun run .omp/skills/memory/bin/memory.ts history
+bun run .omp/skills/memory/bin/memory.ts history --limit=5
 ```
 
 ### search \<query\>
@@ -59,7 +59,7 @@ bun run .pi/skills/memory/bin/memory.ts history --limit=5
 Semantic + text search across Honcho memory at workspace scope. Iterates over the conclusion-writer peers (validator, reviewer, steward) and merges results.
 
 ```
-bun run .pi/skills/memory/bin/memory.ts search "login regression"
+bun run .omp/skills/memory/bin/memory.ts search "login regression"
 ```
 
 ## Output format

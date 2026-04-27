@@ -8,11 +8,11 @@
  * with `docs apply --i-approve`. Commits carry structured trailers.
  *
  * Usage:
- *   bun run .pi/skills/docs/bin/docs.ts propose <path> --rationale=<r>
- *   bun run .pi/skills/docs/bin/docs.ts list
- *   bun run .pi/skills/docs/bin/docs.ts show <id>
- *   bun run .pi/skills/docs/bin/docs.ts apply <id> [--i-approve]
- *   bun run .pi/skills/docs/bin/docs.ts discard <id>
+ *   bun run .omp/skills/docs/bin/docs.ts propose <path> --rationale=<r>
+ *   bun run .omp/skills/docs/bin/docs.ts list
+ *   bun run .omp/skills/docs/bin/docs.ts show <id>
+ *   bun run .omp/skills/docs/bin/docs.ts apply <id> [--i-approve]
+ *   bun run .omp/skills/docs/bin/docs.ts discard <id>
  */
 
 import * as fs from "node:fs";
