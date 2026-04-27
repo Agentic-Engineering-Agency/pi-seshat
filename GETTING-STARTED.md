@@ -246,20 +246,16 @@ Honcho memory convention (slice-008.6 wiring):
     `implementer`, `doc-scout`) declared via slice-008.1's `as_peer`
     parameter.
 
-  Original convention (still applies on top of the above):
-  • Workspace = one per project (curia, matro, agentic-pm-kit,
-    billy, heineken, pi-dev-sandbox for tests). This session is
-    workspace=pi-dev-sandbox.
-  • Peer = luci (for me), plus one per Ghola.
-  • Engineering conclusions come from validator/reviewer peers.
+  Conclusion discipline (applies on top of the above wiring):
+  • Engineering conclusions come from validator/reviewer peers and use
+    no special prefix.
   • Product conclusions come from the steward peer, prefixed
-    `product:` — the prefix is code-enforced.
-  • Slice-008.1 (post-omp-cutover): every Honcho-write call passes
-    `as_peer: '<name>'`. honcho_conclude is REQUIRED to pass it —
-    the conclusion-writer allowlist validates against the declared
-    identity, not against any environment variable. honcho_remember
-    accepts as_peer optionally with env fallback. Each persona's
-    Memory protocol section already encodes this.
+    `product:` — the prefix is code-enforced at the tool layer.
+  • Every honcho_conclude call MUST pass `as_peer: '<name>'`
+    (slice-008.1 contract; allowlist validates against declared
+    identity, not env). honcho_remember may pass `as_peer` optionally,
+    with env fallback. Each persona's Memory protocol section
+    already encodes this.
 
 ── Phase 2 — Silent inventory (no interview questions yet) ──
 
