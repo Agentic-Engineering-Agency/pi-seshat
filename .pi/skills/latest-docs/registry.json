@@ -1,6 +1,7 @@
 {
   "_meta": {
     "ttl_days_default": 7,
+    "_duplicate_warning": "This is the CANONICAL registry.json under both pi and omp runtimes (read by .omp/skills/latest-docs/bin/latest-docs.ts:84 and probe-registry.ts). A duplicate copy lives at .omp/skills/latest-docs/registry.json that is currently INERT — keep both files in sync until slice-009 consolidates them.",
     "note": "Entries marked verified:false have plausible URLs that were not live-checked at seed time — confirm/repair during the end-to-end smoke pass via `latest-docs fetch <lib> --refresh`. Registry entries are edited via `latest-docs register <lib> <url> --i-approve` (audit-logged)."
   },
   "@honcho-ai/sdk": {
