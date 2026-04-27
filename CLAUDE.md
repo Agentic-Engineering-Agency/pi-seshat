@@ -40,9 +40,10 @@ Luci's cross-project rules live at ~/.claude/CLAUDE.md.
 - Engineering conclusions come from `validator` and `reviewer` peers.
 - Product conclusions come from `steward` peer, prefixed `product:`
   (enforced both in persona and in code at
-  `.pi/extensions/honcho/index.ts`).
-- `seshat` and the other Gholas can call `honcho_remember` (scratch
-  memory) but not `honcho_conclude`.
+  `.omp/tools/honcho/index.ts`).
+- The five engineering Gholas (`spec-writer`, `test-writer`, `implementer`,
+  `validator`, `reviewer`) and `doc-scout` can call `honcho_remember`
+  (scratch memory) but not `honcho_conclude`.
 
 ## Quality bar
 
