@@ -13,7 +13,7 @@
  *   PI_ENVDOCTOR_HONCHO_PROBE_CMD  replaces the Honcho SDK round-trip.
  *   PI_ENVDOCTOR_LINEAR_CMD        replaces `linear list --limit=1`.
  *   PI_ENVDOCTOR_GH_CMD            replaces `gh auth status`.
- *   PI_ENVDOCTOR_OMP_CMD           replaces `omp config get`.
+ *   PI_ENVDOCTOR_OMP_CMD           replaces `omp --version`.
  *
  * Exit codes:
  *   0 — all REQUIRED checks passed (OPTIONAL may SKIP)
@@ -121,6 +121,56 @@ type ProbeOutput = {
 	stderr: string;
 };
 
+// Derive the per-cwd session id used by the omp shell function (slice-008.6
+// wiring: workspace=oh-my-pi, session=<peer>-<basename-of-cwd>). Used as a
+// fallback when HONCHO_SESSION_ID is not set in the calling shell, which is
+// the common case when env-doctor is invoked outside the omp wrapper.
+function deriveSessionId(env: NodeJS.ProcessEnv): string {
+	const rawPeer = env.HONCHO_PEER_NAME ?? env.HONCHO_PEER_ID ?? "luci";
+	const peer = rawPeer.toLowerCase();
+	return `${peer}-${path.basename(process.cwd())}`;
+}
+
+// Locate the omp binary. The omp shell function adds bun's global bin to
+// PATH, but a child subprocess spawned from `bun run ...` may not see that
+// addition, and bun's global bin location varies by system (XDG_CACHE_HOME
+// convention, BUN_INSTALL override, mise-managed bun, etc.).
+// Resolution order:
+//   (a) PATH lookup via `command -v omp`
+//   (b) `bun pm bin -g` -- bun's authoritative global-bin path
+//   (c) BUN_INSTALL env var
+//   (d) Well-known fallback constants
+function findOmpBinary(env: NodeJS.ProcessEnv): string | null {
+	const which = spawnSync("sh", ["-c", "command -v omp"], { encoding: "utf-8", env });
+	if (which.status === 0) {
+		const found = (which.stdout ?? "").trim();
+		if (found && fs.existsSync(found)) return found;
+	}
+	const pmBin = spawnSync("bun", ["pm", "bin", "-g"], { encoding: "utf-8", env });
+	if (pmBin.status === 0) {
+		const dir = (pmBin.stdout ?? "").trim();
+		if (dir) {
+			const candidate = path.join(dir, "omp");
+			if (fs.existsSync(candidate)) return candidate;
+		}
+	}
+	const home = os.homedir();
+	const bunInstall = env.BUN_INSTALL;
+	const candidates = [
+		...(bunInstall ? [path.join(bunInstall, "bin", "omp")] : []),
+		path.join(home, ".bun", "bin", "omp"),
+		path.join(home, ".cache", ".bun", "bin", "omp"),
+		path.join(home, ".cache", "bun", "bin", "omp"),
+		path.join(home, ".local", "share", "bun", "bin", "omp"),
+		path.join(home, ".bun", "install", "global", "node_modules", ".bin", "omp"),
+		"/usr/local/bin/omp",
+	];
+	for (const c of candidates) {
+		if (fs.existsSync(c)) return c;
+	}
+	return null;
+}
+
 function runStub(cmd: string, args: string[] = []): ProbeOutput {
 	const r = spawnSync(cmd, args, { encoding: "utf-8" });
 	return {
@@ -138,7 +188,10 @@ function checkHonchoProbe(env: NodeJS.ProcessEnv, secrets: string[]): Item {
 	if (stubCmd) {
 		probe = runStub(stubCmd);
 	} else {
-		probe = runRealHonchoProbe(env);
+		const probeEnv = env.HONCHO_SESSION_ID
+			? env
+			: ({ ...env, HONCHO_SESSION_ID: deriveSessionId(env) } as NodeJS.ProcessEnv);
+		probe = runRealHonchoProbe(probeEnv);
 	}
 	const combinedRaw = `${probe.stdout}\n${probe.stderr}`;
 	const combined = sanitize(combinedRaw, secrets);
@@ -205,10 +258,14 @@ function runRealHonchoProbe(env: NodeJS.ProcessEnv): ProbeOutput {
 }
 
 function checkHonchoEnvVars(env: NodeJS.ProcessEnv): Item {
-	const required = ["HONCHO_WORKSPACE_ID", "HONCHO_SESSION_ID", "HONCHO_PEER_ID"] as const;
+	const required = ["HONCHO_WORKSPACE_ID", "HONCHO_PEER_ID"] as const;
 	const missing = required.filter((k) => !env[k]);
 	if (missing.length > 0) {
 		return { status: "FAIL", note: `missing: ${missing.join(", ")}` };
+	}
+	if (!env.HONCHO_SESSION_ID) {
+		const derived = deriveSessionId(env);
+		return { status: "PASS", note: `HONCHO_SESSION_ID auto-derived: ${derived}` };
 	}
 	return { status: "PASS" };
 }
@@ -250,7 +307,19 @@ function checkGhAuth(env: NodeJS.ProcessEnv, secrets: string[]): Item {
 
 function checkOmpConfig(env: NodeJS.ProcessEnv, secrets: string[]): Item {
 	const stubCmd = env.PI_ENVDOCTOR_OMP_CMD;
-	const probe = stubCmd ? runStub(stubCmd) : runStub("omp", ["config", "get"]);
+	let probe: ProbeOutput;
+	if (stubCmd) {
+		probe = runStub(stubCmd);
+	} else {
+		const found = findOmpBinary(env);
+		if (!found) {
+			return {
+				status: "FAIL",
+				note: "omp binary not found on PATH or in ~/.bun/bin (set PI_ENVDOCTOR_OMP_CMD or `bun link -g`)",
+			};
+		}
+		probe = runStub(found, ["--version"]);
+	}
 	if (probe.exitCode === 0) return { status: "PASS" };
 	const firstLine =
 		sanitize(probe.stderr || probe.stdout || "omp config failed", secrets)

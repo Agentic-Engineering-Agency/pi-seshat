@@ -18,10 +18,10 @@ bun run .omp/skills/env-doctor/bin/env-doctor.ts [--strict] [--json]
 | Id  | Label                  | Required? | Description                                                                                          |
 |-----|------------------------|-----------|------------------------------------------------------------------------------------------------------|
 | (a) | `HONCHO_API_KEY`       | yes       | Env var present + round-trip via `client.session(HONCHO_SESSION_ID).search('__envdoctor_probe__')`.  |
-| (b) | HONCHO env vars        | yes       | `HONCHO_WORKSPACE_ID`, `HONCHO_SESSION_ID`, `HONCHO_PEER_ID` present (no network).                   |
+| (b) | HONCHO env vars        | yes       | `HONCHO_WORKSPACE_ID` and `HONCHO_PEER_ID` present. `HONCHO_SESSION_ID` is auto-derived as `<peer>-<basename-of-cwd>` (matches the omp shell function) when unset. |
 | (c) | `LINEAR_API_KEY`       | optional  | Env present + `linear list --limit=1` exits 0. SKIP if env unset (FAIL under `--strict`).            |
 | (d) | `gh auth`              | yes       | `gh auth status` exits 0.                                                                            |
-| (e) | `omp config`           | yes       | `omp config get` exits 0.                                                                            |
+| (e) | `omp config`           | yes       | `omp --version` exits 0 (probe is for binary aliveness, not config content). Searches PATH, `bun pm bin -g`, `$BUN_INSTALL/bin`, `~/.bun/bin`, `~/.cache/.bun/bin`, `~/.local/share/bun/bin`, and `/usr/local/bin` for the binary; FAIL if none found. |
 | (f) | agent symlinks         | yes       | `~/.omp/agent/{hooks,tools,agents,skills}` each `realpath`-resolve to `$PWD/.omp/<name>`.            |
 | (g) | honcho state           | optional  | `.pi/.honcho-state.json` parses (or is absent → SKIP). Corrupt file is always FAIL.                  |
 | (h) | agent honcho config    | optional  | `~/.omp/agent/honcho.json` parses + is mode 0600 (or absent → SKIP). Corrupt file is always FAIL.    |
@@ -59,7 +59,7 @@ For black-box testing, the four spawn points can be replaced via env vars. When 
 | `PI_ENVDOCTOR_HONCHO_PROBE_CMD` | The Honcho SDK round-trip in (a).                                            |
 | `PI_ENVDOCTOR_LINEAR_CMD`       | `bun run .omp/skills/linear/bin/linear.ts list --limit=1` in (c).            |
 | `PI_ENVDOCTOR_GH_CMD`           | `gh auth status` in (d).                                                     |
-| `PI_ENVDOCTOR_OMP_CMD`          | `omp config get` in (e).                                                     |
+| `PI_ENVDOCTOR_OMP_CMD`          | `omp --version` in (e).                                                      |
 
 ## Secret hygiene
 
