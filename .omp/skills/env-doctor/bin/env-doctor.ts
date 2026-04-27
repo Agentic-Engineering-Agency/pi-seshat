@@ -66,10 +66,7 @@ function sanitize(text: string, secrets: ReadonlyArray<string | undefined>): str
 // (intentionally non-quarantining: env-doctor is read-only)
 // ---------------------------------------------------------------------------
 
-type ParseResult =
-	| { kind: "absent" }
-	| { kind: "ok" }
-	| { kind: "fail"; reason: string };
+type ParseResult = { kind: "absent" } | { kind: "ok" } | { kind: "fail"; reason: string };
 
 function parseStateFile(filePath: string): ParseResult {
 	if (!fs.existsSync(filePath)) return { kind: "absent" };
@@ -231,10 +228,11 @@ function checkLinear(env: NodeJS.ProcessEnv, strict: boolean, secrets: string[])
 		probe = runStub("bun", ["run", path.resolve(process.cwd(), ".omp/skills/linear/bin/linear.ts"), "list", "--limit=1"]);
 	}
 	if (probe.exitCode === 0) return { status: "PASS" };
-	const firstLine = sanitize(probe.stderr || probe.stdout || "linear probe failed", secrets)
-		.trim()
-		.split(/\r?\n/)[0]
-		?.slice(0, 200) || "linear probe failed";
+	const firstLine =
+		sanitize(probe.stderr || probe.stdout || "linear probe failed", secrets)
+			.trim()
+			.split(/\r?\n/)[0]
+			?.slice(0, 200) || "linear probe failed";
 	return { status: "FAIL", note: firstLine };
 }
 
@@ -242,10 +240,11 @@ function checkGhAuth(env: NodeJS.ProcessEnv, secrets: string[]): Item {
 	const stubCmd = env.PI_ENVDOCTOR_GH_CMD;
 	const probe = stubCmd ? runStub(stubCmd) : runStub("gh", ["auth", "status"]);
 	if (probe.exitCode === 0) return { status: "PASS" };
-	const firstLine = sanitize(probe.stderr || probe.stdout || "gh auth failed", secrets)
-		.trim()
-		.split(/\r?\n/)[0]
-		?.slice(0, 200) || "gh auth failed";
+	const firstLine =
+		sanitize(probe.stderr || probe.stdout || "gh auth failed", secrets)
+			.trim()
+			.split(/\r?\n/)[0]
+			?.slice(0, 200) || "gh auth failed";
 	return { status: "FAIL", note: firstLine };
 }
 
@@ -253,10 +252,11 @@ function checkOmpConfig(env: NodeJS.ProcessEnv, secrets: string[]): Item {
 	const stubCmd = env.PI_ENVDOCTOR_OMP_CMD;
 	const probe = stubCmd ? runStub(stubCmd) : runStub("omp", ["config", "get"]);
 	if (probe.exitCode === 0) return { status: "PASS" };
-	const firstLine = sanitize(probe.stderr || probe.stdout || "omp config failed", secrets)
-		.trim()
-		.split(/\r?\n/)[0]
-		?.slice(0, 200) || "omp config failed";
+	const firstLine =
+		sanitize(probe.stderr || probe.stdout || "omp config failed", secrets)
+			.trim()
+			.split(/\r?\n/)[0]
+			?.slice(0, 200) || "omp config failed";
 	return { status: "FAIL", note: firstLine };
 }
 

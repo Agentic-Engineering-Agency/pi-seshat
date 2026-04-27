@@ -171,7 +171,6 @@ describe("[unit] specsafe CLI lifecycle", () => {
 		expectStateMode(0o600);
 	});
 
-
 	test("C9 corrupt state is quarantined and begin treats it as empty state", () => {
 		const statePath = statePathFor(tempDir);
 		fs.writeFileSync(statePath, "{not valid json", { mode: 0o600 });

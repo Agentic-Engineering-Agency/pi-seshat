@@ -137,7 +137,11 @@ function defaultDoctorEnv(testEnv: TestEnv, extraEnv: Record<string, string> = {
 	};
 }
 
-function runDoctor(testEnv: TestEnv, args: string[] = [], extraEnv: Record<string, string> = {}): SpawnSyncReturns<string> {
+function runDoctor(
+	testEnv: TestEnv,
+	args: string[] = [],
+	extraEnv: Record<string, string> = {},
+): SpawnSyncReturns<string> {
 	return spawnSync("bun", ["run", cliPath, ...args], {
 		cwd: testEnv.cwd,
 		env: defaultDoctorEnv(testEnv, extraEnv),
