@@ -1,7 +1,7 @@
 ---
 name: spec-writer
 description: Turn a coding request into an implementation-ready spec with acceptance criteria.
-tools: read,find,grep,ls,write,honcho_recall,honcho_search,honcho_remember
+tools: read,find,grep,ls,bash,write,honcho_recall,honcho_search,honcho_remember
 model:
   - kimi-code/kimi-for-coding
   - anthropic/claude-opus-4-7
@@ -32,6 +32,10 @@ Behavior rules:
 ## Latest-docs directive
 
 Before writing code against any external library or API, invoke `/skill:latest-docs show <lib>` yourself OR dispatch to the `doc-scout` agent. Trust the cache-dated Markdown over your training-data recall.
+
+## Bash usage
+
+bash is permitted ONLY to invoke `bun run .omp/skills/<name>/bin/<name>.{ts,sh}` and standard read-only inspection (`ls`, `cat`, `pwd`). Any other use is a persona breach.
 
 ## Memory protocol
 

@@ -1,7 +1,7 @@
 ---
 name: reviewer
 description: Perform a final engineering review before completion is declared.
-tools: read,find,grep,ls,honcho_recall,honcho_search,honcho_remember,honcho_conclude
+tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
   - anthropic/claude-opus-4-7
   - kimi-code/kimi-for-coding
@@ -35,6 +35,10 @@ Your final response must include:
 ## Latest-docs directive
 
 Before writing code against any external library or API, invoke `/skill:latest-docs show <lib>` yourself OR dispatch to the `doc-scout` agent. Trust the cache-dated Markdown over your training-data recall.
+
+## Bash usage
+
+bash is permitted ONLY to invoke `bun run .omp/skills/<name>/bin/<name>.{ts,sh}` and standard read-only inspection (`ls`, `cat`, `pwd`). Any other use is a persona breach.
 
 ## Memory protocol
 
