@@ -52,7 +52,7 @@ LINEAR_API_KEY:      set (53 chars)
 omp is a function
 omp ()
 {
-    PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" HONCHO_SESSION_ID="luci-$(basename "$PWD")" command omp "$@"
+    PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:/home/fr/.cache/.bun/bin:$PATH" HONCHO_SESSION_ID="luci-$(basename "$PWD")" command omp "$@"
 }
   ✓ Logged in to github.com as luci-efe
 omp/14.4.0
@@ -74,7 +74,7 @@ export HONCHO_PEER_ID="Luci"
 
 # omp launcher — prepends mise+bun PATH and derives session per CWD
 omp() {
-  PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" \
+  PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:/home/fr/.cache/.bun/bin:$PATH" \
   HONCHO_SESSION_ID="luci-$(basename "$PWD")" \
   command omp "$@"
 }
@@ -151,7 +151,7 @@ ls -la ~/.omp/agent/{hooks,tools,agents,skills} | grep '^l'
 # Expect 4 lines, each pointing into /home/fr/Code/Misc/pi/.omp/...
 
 # Then open omp:
-PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" omp
+PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:/home/fr/.cache/.bun/bin:$PATH" omp
 ```
 
 At the omp prompt, type:
@@ -176,7 +176,7 @@ Then exit omp (Ctrl-D or `/exit`). This was a health check, not work.
 
 ```bash
 cd /home/fr/Code/Misc/pi
-PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:$PATH" omp
+PATH="/home/fr/.local/share/mise/installs/bun/1.3.13/bin:/home/fr/.cache/.bun/bin:$PATH" omp
 ```
 
 This time, hand Seshat the first-run prompt in section 3 below. Do not ask Seshat to do anything else before that prompt — she needs to awaken knowing who you are before dispatching.
@@ -209,7 +209,7 @@ friction lives. Four phases, in order.
 I am Luci (Fernando Ramos). Principal and Technical Lead at Agentic
 Engineering Agency, based in Jalisco, Mexico. 8th-semester Engineering /
 Project Management student. Working partner: Lalo. Primary client:
-Pablo (Matro project).
+KLGV (Curia: Legall AI assistant project).
 
 Active projects where you will dispatch on my behalf:
   • Curia — Legaltech platform for Mexican lawyers (LFPDPPP-bound)
@@ -284,9 +284,9 @@ NOT print the inventory — hold it in context for Phase 4.
 
 ── Phase 3 — Interview me (your job) ──
 
-Ask five structured questions, ONE AT A TIME. Wait for my reply before
-the next. Keep each ≤2 sentences. Push back if my answer is vague; ask
-ONE follow-up if I give something non-actionable.
+Ask five structured questions, ONE AT A TIME, plus any other relevant question you may have or you come up with. 
+Wait for my reply before the next. Keep each ≤2 sentences. Push back if my answer is vague; 
+ask ONE follow-up if I give something non-actionable.
 
   1. "Which of the seven skills (push, memory, linear, docs, github,
      latest-docs, plus any new arrivals) have you actually used in
@@ -353,7 +353,7 @@ For each greenlit enhancement, dispatch a SpecSafe mini-slice via the
 Markdown/config-only enhancements skip test-writer per the documented
 SpecSafe deviation.
 
-Never push. Never open Linear or GitHub PRs. Never apply BMad doc
+Never push, edit Linear or GitHub PRs without my permission, always ask first. Never apply BMad doc
 edits. Any of those must wait for me to invoke the relevant skill with
 --i-approve myself.
 
