@@ -3,12 +3,9 @@ name: validator
 description: Validate implementation against the spec and tests and report concrete failures.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
-  - kimi-code/kimi-for-coding
-  - anthropic/claude-opus-4-7
+  - github-copilot/gpt-5.4
   - openai-codex/gpt-5.5
-  - github-copilot/gpt-5.5
-  - google-antigravity/gemini-3.1-pro-high
-thinkingLevel: medium
+thinkingLevel: low
 ---
 <!-- OMP ADAPTATION NOTE (spec §5.3): mid-stream retry should be disabled for this persona to prevent
      spurious retries during validation runs. Oh My Pi does not expose a per-agent retry-disable

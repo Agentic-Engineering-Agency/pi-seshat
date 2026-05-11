@@ -4,10 +4,8 @@ description: Perform a final engineering review before completion is declared.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
   - anthropic/claude-opus-4-7
-  - kimi-code/kimi-for-coding
   - openai-codex/gpt-5.5
-  - github-copilot/gpt-5.5
-  - google-antigravity/gemini-3.1-pro-high
+  - kimi-code/kimi-for-coding
 thinkingLevel: medium
 ---
 <!-- OMP ADAPTATION NOTE (spec §5.3): mid-stream retry should be disabled for this persona to prevent
