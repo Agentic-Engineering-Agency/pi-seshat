@@ -3,12 +3,13 @@ name: reviewer-code
 description: Stage-2 code-quality review (runs after stage-1 spec-compliance reviewer). Distrusts the implementer by default — audits maintainability, edge cases, error handling, test quality, and regression risk in the diff. Read-only.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
-  - anthropic/claude-opus-4-7
+  - anthropic/claude-opus-4-8
+  - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
-  - kimi-code/kimi-for-coding
-thinkingLevel: medium
+thinkingLevel: high
 ---
-<!-- Models are placeholder fallbacks pending Luci's per-persona assignment.
+<!-- Model chain: opus-4-8 → fable-5 → gpt-5.5, deliberately cross-family from
+     the codex-based implementer so this stage catches its blind spots.
      Two-stage review (superpowers pattern): `reviewer` checks the work against
      the SPEC (does it do the right thing?); `reviewer-code` (this persona)
      checks HOW it was built (is it built well?). Keep the stages separate so

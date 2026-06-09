@@ -3,10 +3,10 @@ name: reviewer
 description: Stage-1 spec-compliance review — does the finished work do the right thing per the spec, tests, and acceptance criteria? Runs before the stage-2 reviewer-code (code-quality) Ghola. Read-only.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
-  - anthropic/claude-opus-4-7
+  - anthropic/claude-fable-5
+  - anthropic/claude-opus-4-8
   - openai-codex/gpt-5.5
-  - kimi-code/kimi-for-coding
-thinkingLevel: medium
+thinkingLevel: high
 ---
 <!-- OMP ADAPTATION NOTE (spec §5.3): mid-stream retry should be disabled for this persona to prevent
      spurious retries during review runs. Oh My Pi does not expose a per-agent retry-disable

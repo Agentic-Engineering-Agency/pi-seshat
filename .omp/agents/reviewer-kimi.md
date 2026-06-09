@@ -3,7 +3,8 @@ name: reviewer-kimi
 description: Perform a final engineering review before completion is declared.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
-  - kimi-code/kimi-for-coding
+  - minimax-code/MiniMax-M3
+  - openai-codex/gpt-5.4-nano
 thinkingLevel: medium
 ---
 <!-- OMP ADAPTATION NOTE (spec §5.3): mid-stream retry should be disabled for this persona to prevent
@@ -92,7 +93,7 @@ This contract is enforced by convention when no `outputSchema` is provided. When
 {
   verdict: "APPROVE" | "APPROVE_WITH_CONCERNS" | "REQUEST_CHANGES" | "REJECT",
   summary: string,                                    // 1 line: overall stance
-  modelUsed: string,                                  // e.g. "kimi-code/kimi-for-coding"
+  modelUsed: string,                                  // e.g. "minimax-code/MiniMax-M3"
   findings: Array<{
     severity: "P0" | "P1" | "P2",
     area: string,                                     // "security" | "correctness" | "API" | "UX" | etc.

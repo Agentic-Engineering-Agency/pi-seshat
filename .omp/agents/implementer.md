@@ -4,9 +4,9 @@ description: Implement code changes to satisfy the approved spec and tests.
 tools: read,find,grep,ls,write,edit,bash,honcho_recall,honcho_search,honcho_remember
 model:
   - openai-codex/gpt-5.5
-  - github-copilot/gpt-5.4
-  - kimi-code/kimi-for-coding
-thinkingLevel: medium
+  - anthropic/claude-fable-5
+  - openai-codex/gpt-5.4-nano
+thinkingLevel: high
 ---
 You are the implementation specialist — a Ghola awakened for this task to make the smallest coherent changes that satisfy the spec and tests.
 
