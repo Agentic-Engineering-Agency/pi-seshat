@@ -51,6 +51,29 @@ export function decideLinkAction(state: LinkState, force: boolean): LinkAction {
 export const CAPABILITIES = ["agents", "extensions", "tools", "skills", "rules", "commands"] as const;
 export const FILES = ["RULES.md", "AGENTS.md"] as const;
 
+export type ConfigMergeAction =
+	| { action: "create"; text: string }
+	| { action: "append"; text: string }
+	| { action: "skip-exists" };
+
+/**
+ * Pure: decide how to install the autopilot config block into the GLOBAL
+ * config.yml without clobbering the user's existing settings (notably their
+ * per-role model setup). config.yml cannot be symlinked like the capability
+ * dirs — it is a merge target.
+ *
+ * - No global file        → create it with our block.
+ * - File already declares `compaction:` or `goal:` → skip (never risk
+ *   corrupting hand-tuned keys; the operator merges manually).
+ * - Otherwise             → append our block (valid: top-level keys are new).
+ */
+export function planConfigMerge(existing: string | null, block: string): ConfigMergeAction {
+	if (existing === null) return { action: "create", text: block };
+	if (/^(compaction|goal)\s*:/m.test(existing)) return { action: "skip-exists" };
+	const joined = existing.endsWith("\n") ? existing : `${existing}\n`;
+	return { action: "append", text: `${joined}\n${block}` };
+}
+
 interface Opts {
 	iApprove: boolean;
 	force: boolean;
@@ -120,6 +143,13 @@ function main(argv: string[]): number {
 	if (!opts.iApprove) {
 		out.write(`deploy plan → ${agentDir}\n`);
 		for (const i of items) out.write(`  ${i.action.padEnd(8)} ${i.name}  (${i.link} → ${i.source})\n`);
+		const repoConfig = path.join(ompSource, "config.yml");
+		if (fs.existsSync(repoConfig)) {
+			const globalConfig = path.join(agentDir, "config.yml");
+			const existing = fs.existsSync(globalConfig) ? fs.readFileSync(globalConfig, "utf-8") : null;
+			const plan = planConfigMerge(existing, fs.readFileSync(repoConfig, "utf-8"));
+			out.write(`  ${plan.action.padEnd(8)} config.yml  (autopilot block → ${globalConfig})\n`);
+		}
 		if (conflicts.length > 0) {
 			out.write(`\n${conflicts.length} conflict(s): existing real path(s). Re-run with --i-approve --force to replace.\n`);
 		}
@@ -142,6 +172,23 @@ function main(argv: string[]): number {
 		fs.symlinkSync(i.source, i.link);
 		out.write(`linked  ${i.name} → ${i.source}\n`);
 	}
+
+	// Merge the autopilot config block into the GLOBAL config.yml (cannot be a
+	// symlink — it must coexist with the user's model/role settings).
+	const repoConfig = path.join(ompSource, "config.yml");
+	if (fs.existsSync(repoConfig)) {
+		const block = fs.readFileSync(repoConfig, "utf-8");
+		const globalConfig = path.join(agentDir, "config.yml");
+		const existing = fs.existsSync(globalConfig) ? fs.readFileSync(globalConfig, "utf-8") : null;
+		const plan = planConfigMerge(existing, block);
+		if (plan.action === "skip-exists") {
+			out.write("config  skip — global config.yml already has compaction:/goal: keys; merge .omp/config.yml manually\n");
+		} else {
+			fs.writeFileSync(globalConfig, plan.text);
+			out.write(`config  ${plan.action === "create" ? "created" : "appended autopilot block to"} ${globalConfig}\n`);
+		}
+	}
+
 	out.write(`\ndeployed to ${agentDir}\n`);
 	return 0;
 }

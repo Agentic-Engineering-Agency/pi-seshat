@@ -36,3 +36,10 @@ non-negotiable rules of this installation. Persona-specific detail lives in
 - Classify each mission L0–L4 (see AGENTS.md) and prune the persona chain to
   the level. Do not run a security-reviewer on a typo; do not skip review on an
   enterprise change.
+
+## Autonomy
+- Long missions run via Goal Mode + 70% auto-handoff + `autopilot`
+  (`/skill:autopilot`). The orchestrator MUST run a 1M-context model so the
+  70% handoff trigger leaves working room. On an `autopilot-resume` boundary,
+  re-establish the native `goal` and continue SpecSafe at the recorded phase —
+  never restart completed slices.

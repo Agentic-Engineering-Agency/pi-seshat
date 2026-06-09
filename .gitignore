@@ -33,6 +33,8 @@ bun.lockb
 .omp/.state.json
 .omp/.state.lock
 .omp/.identity-audit.jsonl
+.omp/.autopilot.json
+.omp/.autopilot.json.corrupt-*
 # STATE.md IS committed by design (durable cross-session mission context).
 
 # Audit log lives at ~/.omp/agent/.fallback-log.jsonl, but if a project-scoped

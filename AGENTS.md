@@ -104,5 +104,37 @@ next step. If tests fail, feed the exact failures back to `implementer` or
 - Do not claim completion until code, tests, and behavior all align AND
   `/skill:verify` is green.
 
+## Autonomous missions (autopilot + 70% auto-handoff)
+
+A mission can run to completion **across many sessions** without re-priming
+context by hand. Three layers cooperate:
+
+1. **Goal Mode** (native; `/goal set <objective>`) — the autonomous,
+   auto-continuing loop *within* a session, with an optional token budget.
+2. **Auto-handoff at 70%** (native; `.omp/config.yml` →
+   `compaction.strategy: handoff`, `thresholdPercent: 70`, `autoContinue`,
+   `handoffSaveToDisk`) — at 70% context, omp writes a handoff document, saves
+   it to the artifacts dir, injects `<handoff-context>`, and continues in a new
+   in-process session.
+3. **autopilot** (`/skill:autopilot`, `/autopilot`) — bridges the boundary
+   omp pauses by design (`GoalRuntime.onThreadResumed`): it mirrors the
+   objective to `.omp/.autopilot.json` and **re-arms the goal** at each
+   `session_start` / `session_switch`, so the loop survives both auto-handoffs
+   and full process restarts.
+
+Operating rules for autonomy:
+
+- **Run the orchestrator (Seshat) on a 1M-context model.** The 70% trigger must
+  leave ample working room; autopilot warns at a boundary if the window is < 1M.
+- Start a long effort with `/skill:autopilot auto "<objective>"` (full
+  autonomy) or `set` (draft mode: it drafts the resume prompt for you to
+  submit). Keep `/skill:state` and Honcho current so each resumed session has
+  the working set + durable lessons.
+- The orchestrator re-establishes its native `goal` (op=create) when it sees an
+  `autopilot-resume` / `autopilot-seed` message, then continues SpecSafe at the
+  recorded phase — never restarting completed slices.
+- Mark the mission done with the `goal` tool (op=complete) **and**
+  `/skill:autopilot done` only when the acceptance contract is fully green.
+
 > **Rollback:** vanilla Pi (`pi` binary, `~/.pi/agent/`) coexists per A8 and
 > remains the rollback hatch. To roll dispatch back, revert the cutover commit.

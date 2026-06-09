@@ -1,0 +1,34 @@
+# Seshat v2 — omp project configuration (slice v2.8: autonomous autopilot).
+#
+# omp loads this file at the project level (.omp/config.yml) and merges it over
+# the global ~/.omp/agent/config.yml (project wins). The `deploy` skill folds
+# these same keys into the global config so autonomy is available in every repo.
+#
+# These settings turn on cross-session autonomous operation:
+#   - At 70% context usage, omp generates a handoff document, saves it to the
+#     session artifacts dir, and continues in a NEW in-process session.
+#   - Goal Mode is enabled so an objective auto-continues between turns.
+#   - The autopilot extension re-arms the goal across the handoff/restart
+#     boundary (which omp otherwise pauses by design).
+#
+# Run the orchestrator on a 1M-context model so 70% leaves ample working room.
+
+compaction:
+  enabled: true
+  # "handoff": at the threshold, generate a handoff doc and continue in a new
+  # session (vs in-place "context-full" maintenance or "shake").
+  strategy: handoff
+  # Trigger auto-handoff at 70% of the context window.
+  thresholdPercent: 70
+  # Automatically continue in the new session after handoff (no manual submit).
+  autoContinue: true
+  # Persist each auto-handoff document to a markdown file in the artifacts dir
+  # so the mission has a durable, reviewable trail across sessions.
+  handoffSaveToDisk: true
+
+goal:
+  # Enable Goal Mode + the hidden goal tool (the autonomous in-session loop).
+  enabled: true
+  # Run modes in which an active goal may auto-continue between turns.
+  continuationModes:
+    - interactive
