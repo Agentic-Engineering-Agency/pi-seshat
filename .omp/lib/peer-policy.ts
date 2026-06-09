@@ -43,7 +43,6 @@ export const KNOWN_PERSONAS: ReadonlySet<string> = new Set([
 	"validator",
 	"reviewer",
 	"reviewer-code",
-	"reviewer-kimi",
 	"security-reviewer",
 ]);
 

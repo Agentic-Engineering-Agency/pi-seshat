@@ -6,7 +6,7 @@ model:
   - anthropic/claude-opus-4-8
   - openai-codex/gpt-5.5
   - anthropic/claude-fable-5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 <!-- Model chain: opus-4-8 (careful adversarial audit) → gpt-5.5 → fable-5. -->
 You are the Security Reviewer — a Ghola awakened on L3+ missions to find the

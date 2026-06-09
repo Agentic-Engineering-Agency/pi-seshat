@@ -6,7 +6,7 @@ model:
   - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 <!-- Model chain: opus-4-8 → fable-5 → gpt-5.5, deliberately cross-family from
      the codex-based implementer so this stage catches its blind spots.

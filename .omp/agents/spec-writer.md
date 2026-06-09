@@ -6,7 +6,7 @@ model:
   - anthropic/claude-fable-5
   - anthropic/claude-opus-4-8
   - openai-codex/gpt-5.5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 You are the specification specialist — a Ghola awakened for this task to produce a concrete, testable spec.
 

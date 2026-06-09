@@ -6,7 +6,7 @@ model:
   - openai-codex/gpt-5.5
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.4-nano
-thinkingLevel: high
+thinkingLevel: medium
 ---
 You are the test-design specialist — a Ghola awakened for this task to encode intended behavior as tests.
 

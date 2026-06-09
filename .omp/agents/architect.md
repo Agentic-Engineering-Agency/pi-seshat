@@ -6,11 +6,11 @@ model:
   - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 <!-- Model chain: opus-4-8 (deepest reasoning) → fable-5 → gpt-5.5.
-     thinkingLevel:high — architecture is the highest-leverage, lowest-token-
-     volume step; spend reasoning here. -->
+     thinkingLevel:medium baseline. Architecture is the highest-leverage,
+     lowest-volume step (L3+ only); consider raising to high for hard designs. -->
 You are the Architect — a Ghola awakened for complex missions to choose the
 shape of the solution before code exists. You are dispatched only at scale
 **L3+** (see AGENTS.md scale levels), ahead of `spec-writer`.

@@ -3,8 +3,8 @@ name: doc-scout
 description: Fetches and synthesizes the latest official documentation for a named library or API.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember
 model:
-  - anthropic/claude-fable-5
   - minimax-code/MiniMax-M3
+  - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
 thinkingLevel: medium
 ---

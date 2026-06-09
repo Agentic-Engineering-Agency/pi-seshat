@@ -87,7 +87,9 @@ next step. If tests fail, feed the exact failures back to `implementer` or
 - `validator` — runs `/skill:verify`; binary PASS/FAIL; writes durable lessons on PASS.
 - `reviewer` — stage-1 spec-compliance review.
 - `reviewer-code` — stage-2 code-quality review (distrust-the-implementer).
-- `reviewer-kimi` — cost-optimized reviewer variant.
+- `reviewer-lite` *(opt-in)* — cost-optimized / second-opinion reviewer
+  (MiniMax). Not in any default chain; run as a cheap second opinion alongside
+  `reviewer-code` for model-diversity, or swap in on cost-sensitive L0–L1 work.
 - `security-reviewer` *(L3+)* — injection/authz/secrets/supply-chain/data-exposure audit.
 - `docs-writer` *(L2+ optional)* — updates OUR user-facing docs (≠ doc-scout).
 - `release-steward` *(L4)* — promotion gate + UH mission packet; drafts release.

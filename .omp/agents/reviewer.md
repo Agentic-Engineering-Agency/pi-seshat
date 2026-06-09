@@ -6,7 +6,7 @@ model:
   - anthropic/claude-fable-5
   - anthropic/claude-opus-4-8
   - openai-codex/gpt-5.5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 <!-- OMP ADAPTATION NOTE (spec §5.3): mid-stream retry should be disabled for this persona to prevent
      spurious retries during review runs. Oh My Pi does not expose a per-agent retry-disable

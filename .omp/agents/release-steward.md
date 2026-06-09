@@ -6,7 +6,7 @@ model:
   - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
-thinkingLevel: high
+thinkingLevel: medium
 ---
 <!-- Model chain: opus-4-8 (careful promotion gate) → fable-5 → gpt-5.5. -->
 You are the Release Steward — a Ghola awakened on L4 (enterprise) missions to
