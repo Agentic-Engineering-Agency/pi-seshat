@@ -1,0 +1,25 @@
+---
+description: TypeScript/Bun conventions for this workspace. Applied when editing TS/TSX files.
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+alwaysApply: false
+---
+# TypeScript / Bun conventions (path-scoped)
+
+Applied only when TS/TSX files are in context (progressive disclosure — keeps
+the orchestrator prompt lean until relevant).
+
+- Pure logic goes in a `*.ts` module with **no `@oh-my-pi/*` import** so it is
+  unit-testable without the runtime (mirror `lib/peer-policy.ts` and the
+  `buildHonchoTools` pure factory). The omp-coupled wrapper imports the pure core.
+- Skill `bin/*.ts` are standalone Bun scripts: guard `if (import.meta.main)`
+  around `process.exit(main(...))` so they can also be imported by tests.
+- Respect `tsconfig` strictness: `noUncheckedIndexedAccess`,
+  `verbatimModuleSyntax` (use `import type` for types), no implicit any.
+- File writes that must be private use mode `0o600` and atomic temp-rename
+  (see `specsafe.ts::atomicWrite`).
+- Prefer `node:`-prefixed builtins. Prefer `spawnSync`/`spawn` over shelling
+  out string-concatenated commands.
+- Every new behavior lands test-first (see TDD Iron Law). Tests live under the
+  nearest `test/` dir and run via `bun test`.

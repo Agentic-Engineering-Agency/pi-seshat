@@ -1,0 +1,26 @@
+---
+description: Enforce Honcho peer-identity discipline in-stream (TTSR). Aborts and corrects the model the moment it writes a honcho_conclude/honcho_remember tool call with a missing or malformed as_peer.
+scope:
+  - tool:honcho_conclude
+  - tool:honcho_remember
+condition:
+  - "\"name\"\\s*:\\s*\"honcho_conclude\"(?:(?!as_peer)[\\s\\S]){0,400}\\}"
+  - "as_peer\"\\s*:\\s*\"\""
+interruptMode: tool-only
+alwaysApply: false
+---
+# Honcho peer-identity gate (TTSR)
+
+You are emitting a `honcho_conclude` or `honcho_remember` tool call. Before it
+lands, confirm the identity contract:
+
+- `as_peer` is **required** for `honcho_conclude` and MUST be the exact persona
+  name you were dispatched as — one of: `validator`, `reviewer`,
+  `reviewer-code`, `security-reviewer`, `steward`, `release-steward`.
+- For `honcho_remember`, pass `as_peer` set to your own persona name.
+- If you are `steward` or `release-steward`, the `content` of any conclusion
+  MUST begin with `product:`.
+- Never name a peer you are not. The `identity-gate` extension and an
+  append-only audit will reject and record any mismatch.
+
+Re-emit the tool call with a correct `as_peer` now.

@@ -1,30 +1,46 @@
-# `.omp/` — pi-seshat-on-Oh-My-Pi project-scoped extensions
+# `.omp/` — pi-seshat-on-Oh-My-Pi project-scoped extensions (Seshat v2)
 
-Source-of-truth for the migration landed in `specs/SPEC-20260426-008-oh-my-pi-migration.md`.
+Source-of-truth for the v1 migration: `specs/SPEC-20260426-008-oh-my-pi-migration.md`.
+v2 upgrade design: `plans/2026-06-09-seshat-v2-omp-design.md`.
 
 ## Layout
 
-| Subdir | Purpose | Maps to |
+| Subdir | Purpose | Discovery (omp v15, verified) |
 |---|---|---|
-| `hooks/` | Hook factories registered via `pi.on(...)` | `~/.omp/agent/hooks/` (auto-discovered) |
-| `tools/` | Custom tools (`<name>/index.ts` per tool) | `~/.omp/agent/tools/` (auto-discovered) |
-| `agents/` | Ghola persona definitions | `~/.omp/agent/agents/` |
-| `skills/` | External-surface skills (`<name>/SKILL.md` + `bin/`) | `~/.omp/agent/skills/` (also reads `~/.claude/skills/`) |
-| `test/` | Migration-specific tests | run via `bun test .omp/test/` |
+| `extensions/` | **Auto-loaded** hook/tool factory modules (`*.ts`, default-export `(pi)=>void`) | `<repo>/.omp/extensions/*.ts` and `~/.omp/agent/extensions/*.ts` |
+| `hooks/` | Source-of-truth hook implementations (imported by the `extensions/` shims) | NOT auto-discovered — see note below |
+| `tools/` | Custom tools (`<name>/index.ts` per tool) | `.omp/tools/` and `~/.omp/agent/tools/` |
+| `agents/` | Ghola persona definitions | `.omp/agents/*.md` and `~/.omp/agent/agents/*.md` |
+| `skills/` | External-surface skills (`<name>/SKILL.md` + `bin/`) | `.omp/skills/` (also reads `~/.claude/skills/`) |
+| `rules/` | Rules + **TTSR** stream rules (`*.mdc` frontmatter: `condition`/`astCondition`/`scope`/`interruptMode`) | `.omp/rules/` and `~/.omp/agent/rules/` |
+| `lib/` | Pure, runtime-free logic (no `@oh-my-pi/*` import) so it is unit-testable | imported by extensions + tests |
+| `test/` | Unit + migration tests | `bun test ./.omp/test/**/*.test.ts` |
+| `RULES.md` | Sticky always-apply invariants (re-injected every turn, survive compaction) | `.omp/RULES.md` and `~/.omp/agent/RULES.md` |
+
+> **Why `extensions/` exists (v2.0 fix):** omp v15 discovers extension modules
+> from `<config>/extensions/*.ts`. The legacy `hookCapability` provider only
+> models Claude-style `hooks/<hookType>/*` subdirs, so the flat `.omp/hooks/*.ts`
+> factories from SPEC-008 were **never auto-loaded**. The `extensions/` shims
+> re-export those factories from their source-of-truth `hooks/` location so they
+> actually run. New enforcement code (`identity-gate.ts`) lives directly in
+> `extensions/`.
 
 ## Deployment
 
-Symlink each `.omp/<subdir>` to its sibling under `~/.omp/agent/` so edits in the repo flow live to the runtime:
+Project-local is automatic (omp reads `<repo>/.omp/`). For **global** install
+(every project), use the deploy skill — it symlinks each capability dir into
+`~/.omp/agent/` and is dry-run by default:
 
 ```bash
-ln -s "$PWD/.omp/hooks"  ~/.omp/agent/hooks
-ln -s "$PWD/.omp/tools"  ~/.omp/agent/tools
-ln -s "$PWD/.omp/agents" ~/.omp/agent/agents
-ln -s "$PWD/.omp/skills" ~/.omp/agent/skills
+bun run .omp/skills/deploy/bin/deploy.ts             # show the plan
+bun run .omp/skills/deploy/bin/deploy.ts --i-approve # apply
 ```
 
-Symlink (not copy) is intentional: it eliminates a "did the ported code drift from repo" failure mode.
+Symlinks (not copies) eliminate the "did the runtime drift from the repo"
+failure mode. Project `.omp/` still overrides the global links (project beats
+user in omp discovery precedence).
 
 ## Coexistence
 
-Vanilla Pi's `.pi/` directory in this repo is **untouched** during the migration. Both runtimes coexist on this machine until slice-009 decommissions Meridian + pi-scrub + `~/.pi/agent/`. Rollback from `omp` to `pi` is one config edit in `AGENTS.md`.
+Vanilla Pi's `.pi/` directory is untouched; both runtimes coexist. Rollback
+from `omp` to `pi` is a config edit in `AGENTS.md`.

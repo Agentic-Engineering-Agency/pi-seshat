@@ -9,9 +9,9 @@
     "test:unit": "bun test --test-name-pattern='\\[unit\\]' ./.pi/extensions/**/test/*.test.ts ./.pi/skills/**/test/*.test.ts ./.omp/test/*.test.ts ./.omp/test/**/*.test.ts",
     "test:live": "HONCHO_TESTS_LIVE=1 bun test ./.pi/extensions/**/test/*.test.ts ./.pi/skills/**/test/*.test.ts ./.omp/test/*.test.ts ./.omp/test/**/*.test.ts",
     "typecheck": "tsc --noEmit",
-    "format": "bun x --bun @biomejs/biome format --write .pi/extensions .pi/skills .omp/hooks .omp/tools .omp/test",
-    "format:check": "bun x --bun @biomejs/biome format .pi/extensions .pi/skills .omp/hooks .omp/tools .omp/test",
-    "lint": "bun x --bun @biomejs/biome check .pi/extensions .pi/skills .omp/hooks .omp/tools .omp/test"
+    "format": "bun x --bun @biomejs/biome format --write .pi/extensions .pi/skills .omp/extensions .omp/hooks .omp/lib .omp/tools .omp/skills .omp/test",
+    "format:check": "bun x --bun @biomejs/biome format .pi/extensions .pi/skills .omp/extensions .omp/hooks .omp/lib .omp/tools .omp/skills .omp/test",
+    "lint": "bun x --bun @biomejs/biome check .pi/extensions .pi/skills .omp/extensions .omp/hooks .omp/lib .omp/tools .omp/skills .omp/test"
   },
   "dependencies": {
     "@honcho-ai/sdk": "latest",

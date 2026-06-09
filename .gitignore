@@ -29,6 +29,12 @@ bun.lockb
 .omp/.fallback-log.jsonl
 .omp/sessions/
 
+# Seshat v2 runtime artifacts (machine-local; never committed)
+.omp/.state.json
+.omp/.state.lock
+.omp/.identity-audit.jsonl
+# STATE.md IS committed by design (durable cross-session mission context).
+
 # Audit log lives at ~/.omp/agent/.fallback-log.jsonl, but if a project-scoped
 # log ever lands inside the repo via symlink chain it should not be tracked.
 

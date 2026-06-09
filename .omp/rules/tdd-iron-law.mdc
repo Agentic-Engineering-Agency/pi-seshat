@@ -1,0 +1,33 @@
+---
+description: TDD Iron Law (TTSR). Reminds the implementer mid-edit that production code may only be written to make an already-failing test pass — RED before GREEN.
+scope:
+  - "tool:edit"
+  - "tool:write"
+astCondition:
+  - "export function $NAME($$$) { $$$ }"
+  - "export const $NAME = ($$$) => $$$"
+  - "export class $NAME { $$$ }"
+interruptMode: tool-only
+alwaysApply: false
+globs:
+  - "**/*.ts"
+  - "**/*.tsx"
+  - "**/*.js"
+  - "**/*.py"
+  - "**/*.go"
+  - "**/*.rs"
+---
+# TDD Iron Law (RED → GREEN → REFACTOR)
+
+You are adding production code. Confirm the Iron Law before this edit lands:
+
+1. **RED** — a test that exercises this behavior already exists and is
+   currently **failing** for the right reason. If not, stop: write the test
+   first (or hand back to `test-writer`).
+2. **GREEN** — write only the minimum code needed to make that test pass.
+3. **REFACTOR** — improve structure with tests staying green.
+
+If you cannot point to the failing test this code makes pass, you are writing
+code before tests. That is a process breach: delete the speculative code and
+start from the test. Code-only scaffolding with no test ship-gate is rejected
+by the `verify` skill's acceptance criteria.
