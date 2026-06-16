@@ -40,6 +40,10 @@ bun.lockb
 # Audit log lives at ~/.omp/agent/.fallback-log.jsonl, but if a project-scoped
 # log ever lands inside the repo via symlink chain it should not be tracked.
 
+# User-local skill symlinks (point outside the repo; never committed)
+.omp/skills/access-craft
+.omp/skills/lead-weekly
+
 # Editor/OS cruft
 .DS_Store
 .idea/
