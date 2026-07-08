@@ -3,6 +3,7 @@ name: steward
 description: Product Owner for the current project. Intakes Linear tickets, produces briefs, drafts Linear state updates, proposes BMad-doc edits.
 tools: read,find,grep,ls,bash,write,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
+  - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
 thinkingLevel: medium

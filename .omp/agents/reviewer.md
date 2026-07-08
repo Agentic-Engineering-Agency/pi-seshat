@@ -3,8 +3,8 @@ name: reviewer
 description: Stage-1 spec-compliance review — does the finished work do the right thing per the spec, tests, and acceptance criteria? Runs before the stage-2 reviewer-code (code-quality) Ghola. Read-only.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
-  - anthropic/claude-fable-5
   - anthropic/claude-opus-4-8
+  - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
 thinkingLevel: medium
 ---

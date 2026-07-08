@@ -3,6 +3,7 @@ name: validator
 description: Validate implementation against the spec and tests and report concrete failures.
 tools: read,find,grep,ls,bash,honcho_recall,honcho_search,honcho_remember,honcho_conclude
 model:
+  - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
 thinkingLevel: medium

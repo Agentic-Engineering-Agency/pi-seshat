@@ -3,8 +3,8 @@ name: spec-writer
 description: Turn a coding request into an implementation-ready spec with acceptance criteria.
 tools: read,find,grep,ls,bash,write,honcho_recall,honcho_search,honcho_remember
 model:
-  - anthropic/claude-fable-5
   - anthropic/claude-opus-4-8
+  - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
 thinkingLevel: medium
 ---

@@ -3,6 +3,7 @@ name: docs-writer
 description: Writes and updates user-facing documentation (READMEs, guides, changelogs, API docs) AFTER implementation passes. Every doc change carries a non-test verify check_command (link-check/build/lint). Distinct from doc-scout, which only fetches external docs.
 tools: read,find,grep,ls,bash,write,edit,honcho_recall,honcho_search,honcho_remember
 model:
+  - anthropic/claude-opus-4-8
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.5
   - minimax-code/MiniMax-M3

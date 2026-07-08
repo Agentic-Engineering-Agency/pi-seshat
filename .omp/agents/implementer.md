@@ -3,6 +3,7 @@ name: implementer
 description: Implement code changes to satisfy the approved spec and tests.
 tools: read,find,grep,ls,write,edit,bash,honcho_recall,honcho_search,honcho_remember
 model:
+  - anthropic/claude-opus-4-8
   - openai-codex/gpt-5.5
   - anthropic/claude-fable-5
   - openai-codex/gpt-5.4-nano
