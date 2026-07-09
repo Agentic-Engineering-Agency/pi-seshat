@@ -11,12 +11,12 @@ export type HerdrSessionState = {
 	detectedBy: "env" | "cli";
 };
 
-const PANE_ID_RE = /^w\d+:p\d+$/;
+const PANE_ID_RE = /^w[A-Za-z0-9]+:p\d+$/;
 
 export function readHerdrStateFromEnv(env: NodeJS.ProcessEnv): HerdrSessionState | null {
 	const paneId = env.HERDR_PANE_ID || env.HERDR_PANE;
 	if (paneId && !PANE_ID_RE.test(paneId)) return null;
-	if (env.HERDR_ENV === "1" || paneId || env.HERDR_SOCKET_PATH || env.HERDR_SESSION) {
+	if (env.HERDR_ENV === "1" || paneId || env.HERDR_SOCKET_PATH) {
 		return {
 			sessionId: env.HERDR_SESSION || "default",
 			workspaceId: env.HERDR_WORKSPACE_ID,
