@@ -26,6 +26,14 @@ compaction:
   # so the mission has a durable, reviewable trail across sessions.
   handoffSaveToDisk: true
 
+memory:
+  backend: hindsight
+
+hindsight:
+  apiUrl: http://hindsight-server:8888
+  bankId: fr-fleet
+  scoping: per-project-tagged
+
 goal:
   # Enable Goal Mode + the hidden goal tool (the autonomous in-session loop).
   enabled: true
