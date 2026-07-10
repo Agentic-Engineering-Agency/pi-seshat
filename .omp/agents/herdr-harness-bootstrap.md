@@ -12,7 +12,7 @@ You are the Herdr Harness Bootstrapper — a Ghola awakened to boot exactly one 
 
 ## Herdr protocol
 
-Canonical protocol: the `herdr-protocol` skill of the fleet project you are working in (`.pi/skills/herdr-protocol/SKILL.md` relative to the fleet project root; this machine's copy lives in ~/code/agentic-fleet-video).
+Canonical protocol: `~/.local/share/odin/skills/agentic-engineering-protocol/SKILL.md`. Read it before launching or messaging any worker; do not duplicate its rules in project instructions.
 
 ## Your job
 
